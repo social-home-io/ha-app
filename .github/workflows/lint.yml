@@ -1,0 +1,60 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  config-check:
+    name: HA add-on validator
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        addon: [social_home, social_home_dev]
+    steps:
+      - uses: actions/checkout@v4
+      # Validates ``config.yaml`` schema, ``build.yaml`` arch
+      # mappings, and the per-add-on layout. Rejects unknown keys,
+      # malformed schemas, missing required fields.
+      - uses: frenck/action-addon-linter@v2
+        with:
+          path: "./${{ matrix.addon }}"
+
+  shellcheck:
+    name: shellcheck (run.sh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@master
+        with:
+          # ``run.sh`` is bashio (sourced from /usr/bin/bashio,
+          # which itself sources ``with-contenv``). Treat the file
+          # as bash and silence shebang complaints.
+          severity: warning
+          scandir: "."
+          additional_files: "run.sh"
+        env:
+          SHELLCHECK_OPTS: "-x -s bash"
+
+  hadolint:
+    name: hadolint (Dockerfile)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        addon: [social_home, social_home_dev]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ matrix.addon }}/Dockerfile
+          # ``DL3008`` (apt unpinned) and ``DL3013`` (pip
+          # unpinned) are noisy for HA add-ons; the upstream image
+          # already pins what matters.
+          ignore: DL3008,DL3013,DL3018,DL3059

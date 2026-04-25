@@ -1,0 +1,11 @@
+# Build / runtime
+**/__pycache__/
+*.pyc
+.DS_Store
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp

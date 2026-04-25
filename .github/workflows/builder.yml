@@ -1,0 +1,80 @@
+name: Build add-on images
+
+on:
+  push:
+    branches: [main]
+    tags: ["[0-9]*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    name: Decide what to build
+    runs-on: ubuntu-latest
+    outputs:
+      addons: ${{ steps.matrix.outputs.addons }}
+      publish: ${{ steps.matrix.outputs.publish }}
+    steps:
+      - id: matrix
+        run: |
+          # Pull requests build but do not publish. Tag pushes
+          # publish only the stable add-on (the dev channel is
+          # rebuilt continuously from main pushes).
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            echo 'addons=["social_home","social_home_dev"]' >> "$GITHUB_OUTPUT"
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo 'addons=["social_home"]' >> "$GITHUB_OUTPUT"
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'addons=["social_home","social_home_dev"]' >> "$GITHUB_OUTPUT"
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build ${{ matrix.addon }} (${{ matrix.arch }})
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        addon: ${{ fromJson(needs.prepare.outputs.addons) }}
+        arch: [aarch64, amd64, armv7]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read add-on metadata
+        id: meta
+        run: |
+          # ``frenck/action-addon-information`` parses
+          # ``config.yaml`` so the builder gets the version + slug
+          # without us re-implementing the YAML walk.
+          version=$(yq -r '.version' "${{ matrix.addon }}/config.yaml")
+          slug=$(yq -r '.slug' "${{ matrix.addon }}/config.yaml")
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "slug=${slug}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to ghcr.io
+        if: needs.prepare.outputs.publish == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (and optionally push)
+        uses: home-assistant/builder@2024.08.2
+        with:
+          args: |
+            --${{ matrix.arch }} \
+            --target ${{ matrix.addon }} \
+            --image "social-home-io/ha-app-${{ steps.meta.outputs.slug }}-{arch}" \
+            --version "${{ steps.meta.outputs.version }}" \
+            ${{ needs.prepare.outputs.publish == 'true' && '--docker-hub-check' || '--test' }}

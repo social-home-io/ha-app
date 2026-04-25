@@ -1,0 +1,16 @@
+---
+# Stable add-on pins the upstream Social Home image to a CalVer
+# tag so a Supervisor restart never silently swaps Python or
+# socialhome versions out from under the user. Bump in lock-step
+# with the ``version`` in ``config.yaml``.
+
+build_from:
+  aarch64: ghcr.io/social-home-io/socialhome:2026.4.25
+  amd64: ghcr.io/social-home-io/socialhome:2026.4.25
+  armv7: ghcr.io/social-home-io/socialhome:2026.4.25
+
+labels:
+  org.opencontainers.image.title: Social Home
+  org.opencontainers.image.description: Your private, federated household social network.
+  org.opencontainers.image.source: https://github.com/social-home-io/ha-app
+  org.opencontainers.image.licenses: MPL-2.0
