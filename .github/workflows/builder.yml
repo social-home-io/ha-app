@@ -11,14 +11,12 @@ concurrency:
   group: build-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
-# The ``home-assistant/builder`` action hardcodes the amd64-builder
-# image, which can't ``exec`` on a native arm64 runner. Inline the
-# action's ``docker run`` ourselves so we can pick the matching
-# per-arch builder image (``ghcr.io/home-assistant/${arch}-builder``)
-# on the matching native runner — no QEMU, no exec-format errors.
-
-env:
-  BUILDER_VERSION: "2024.08.2"
+# The ``home-assistant/builder`` action gained an ``image`` input in
+# ``2026.03.x`` that picks the per-arch builder image; we set it to
+# match the host runner's arch so the build is native (no QEMU). The
+# action carries a deprecation warning — its replacement is a set of
+# reusable actions in home-assistant/builder — but it still works
+# end-to-end and the migration is a separate follow-up.
 
 jobs:
   prepare:
@@ -81,33 +79,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build (and optionally push)
-        run: |
-          # Pick the per-arch HA builder image matching the host
-          # runner. ``home-assistant/builder@2024.08.2``'s action
-          # would have pinned amd64-builder, which is exec-format
-          # incompatible with the ubuntu-24.04-arm runner.
-          BUILDER_IMG="ghcr.io/home-assistant/${{ matrix.arch }}-builder:${BUILDER_VERSION}"
-          docker pull "${BUILDER_IMG}"
-
-          # Pass through every env var the builder might inspect,
-          # minus the noisy / runner-specific ones (mirrors the
-          # action.yml stanza).
-          env > /tmp/env_file
-          sed -i "/\(HOME\|TERM\|PWD\|HOSTNAME\|PATH\|SHLVL\|USER\|GOROOT\)/d" /tmp/env_file
-
-          PUBLISH_FLAG="--test"
-          if [[ "${{ needs.prepare.outputs.publish }}" == "true" ]]; then
-            PUBLISH_FLAG="--docker-hub-check"
-          fi
-
-          docker run --rm --privileged \
-              -v /var/run/docker.sock:/var/run/docker.sock:ro \
-              -v ~/.docker:/root/.docker \
-              -v "${{ github.workspace }}:/data" \
-              --env-file /tmp/env_file \
-              "${BUILDER_IMG}" \
-              --${{ matrix.arch }} \
-              --target ${{ matrix.addon }} \
-              --image "social-home-io/ha-app-${{ steps.meta.outputs.slug }}-{arch}" \
-              --version "${{ steps.meta.outputs.version }}" \
-              ${PUBLISH_FLAG}
+        uses: home-assistant/builder@2026.03.2
+        with:
+          # Match the builder helper image to the runner arch so the
+          # build runs natively (amd64-builder on ubuntu-24.04,
+          # aarch64-builder on ubuntu-24.04-arm).
+          image: ${{ matrix.arch }}
+          args: |
+            --${{ matrix.arch }} \
+            --target ${{ matrix.addon }} \
+            --image "social-home-io/ha-app-${{ steps.meta.outputs.slug }}-{arch}" \
+            --version "${{ steps.meta.outputs.version }}" \
+            ${{ needs.prepare.outputs.publish == 'true' && '--docker-hub-check' || '--test' }}
