@@ -1,0 +1,9 @@
+#!/command/execlineb -S0
+# ``finish`` runs after the longrun exits. Anything other than a
+# clean exit (0) or s6's "service was downed" sentinel (256) means
+# the Python process crashed — bring the container down so the
+# Supervisor surfaces the failure and respawns us rather than
+# silently looping in s6.
+if -n { s6-test ${1} -eq 0 }
+if -n { s6-test ${1} -eq 256 }
+s6-svscanctl -t /run/s6/service

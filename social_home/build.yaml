@@ -1,13 +1,25 @@
 ---
-# Stable add-on pins the upstream Social Home image to a CalVer
-# tag so a Supervisor restart never silently swaps Python or
-# socialhome versions out from under the user. Bump in lock-step
-# with the ``version`` in ``config.yaml``.
+# Stable add-on builds on the official Home Assistant Python base
+# image (https://github.com/home-assistant/docker-base) which ships
+# Alpine + s6-overlay v3 + bashio + tempio out of the box, so the
+# Dockerfile only has to install runtime libs + socialhome itself.
+#
+# ``SOCIALHOME_VERSION`` is forwarded as a build-arg so a CalVer
+# bump here is enough to repin the install on the next Supervisor
+# refresh. Mirrors the home-assistant/addons reference style (see
+# e.g. ``silabs_flasher``).
+#
+# armv7 / armhf / i386 are unsupported: the upstream python-base
+# image only ships ``3.14-alpine3.23`` for ``amd64`` / ``aarch64``
+# (the 32-bit arches are end-of-line at ``3.13-alpine3.22``), and
+# socialhome requires Python 3.14+.
 
 build_from:
-  aarch64: ghcr.io/social-home-io/socialhome:2026.4.25
-  amd64: ghcr.io/social-home-io/socialhome:2026.4.25
-  armv7: ghcr.io/social-home-io/socialhome:2026.4.25
+  aarch64: ghcr.io/home-assistant/aarch64-base-python:3.14-alpine3.23
+  amd64: ghcr.io/home-assistant/amd64-base-python:3.14-alpine3.23
+
+args:
+  SOCIALHOME_VERSION: "2026.5.10"
 
 labels:
   org.opencontainers.image.title: Social Home

@@ -1,14 +1,17 @@
 ---
-# Dev add-on always rebuilds against ``ghcr.io/social-home-io/socialhome:main``
-# so every push to the upstream main branch lands here on the
-# next Supervisor refresh. ``config.yaml`` carries
-# ``2026.4.25-dev`` so the Supervisor sorts dev *ahead* of stable
-# and the two add-ons coexist without a version collision.
+# Dev add-on uses the same HA python-base image + style as stable
+# (see ``social_home/build.yaml`` for the rationale). The pin here
+# can run ahead of stable on a CalVer pre-release (e.g.
+# ``2026.5.11rc1``) — the two add-ons have separate slugs, so the
+# Supervisor treats them as independent installs and the versions
+# don't need to be ordered against each other.
 
 build_from:
-  aarch64: ghcr.io/social-home-io/socialhome:main
-  amd64: ghcr.io/social-home-io/socialhome:main
-  armv7: ghcr.io/social-home-io/socialhome:main
+  aarch64: ghcr.io/home-assistant/aarch64-base-python:3.14-alpine3.23
+  amd64: ghcr.io/home-assistant/amd64-base-python:3.14-alpine3.23
+
+args:
+  SOCIALHOME_VERSION: "2026.5.10"
 
 labels:
   org.opencontainers.image.title: Social Home (Dev)

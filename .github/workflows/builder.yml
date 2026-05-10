@@ -11,6 +11,13 @@ concurrency:
   group: build-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
+# The ``home-assistant/builder`` action gained an ``image`` input in
+# ``2026.03.x`` that picks the per-arch builder image; we set it to
+# match the host runner's arch so the build is native (no QEMU). The
+# action carries a deprecation warning — its replacement is a set of
+# reusable actions in home-assistant/builder — but it still works
+# end-to-end and the migration is a separate follow-up.
+
 jobs:
   prepare:
     name: Decide what to build
@@ -38,7 +45,7 @@ jobs:
   build:
     name: Build ${{ matrix.addon }} (${{ matrix.arch }})
     needs: prepare
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
@@ -46,16 +53,18 @@ jobs:
       fail-fast: false
       matrix:
         addon: ${{ fromJson(needs.prepare.outputs.addons) }}
-        arch: [aarch64, amd64, armv7]
+        arch: [aarch64, amd64]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
       - name: Read add-on metadata
         id: meta
         run: |
-          # ``frenck/action-addon-information`` parses
-          # ``config.yaml`` so the builder gets the version + slug
-          # without us re-implementing the YAML walk.
           version=$(yq -r '.version' "${{ matrix.addon }}/config.yaml")
           slug=$(yq -r '.slug' "${{ matrix.addon }}/config.yaml")
           echo "version=${version}" >> "$GITHUB_OUTPUT"
@@ -70,8 +79,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build (and optionally push)
-        uses: home-assistant/builder@2024.08.2
+        uses: home-assistant/builder@2026.03.2
         with:
+          # Match the builder helper image to the runner arch so the
+          # build runs natively (amd64-builder on ubuntu-24.04,
+          # aarch64-builder on ubuntu-24.04-arm).
+          image: ${{ matrix.arch }}
           args: |
             --${{ matrix.arch }} \
             --target ${{ matrix.addon }} \

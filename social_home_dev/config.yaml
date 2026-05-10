@@ -1,24 +1,20 @@
 ---
 name: Social Home (Dev)
-version: "2026.4.25-dev"
+version: "2026.5.10"
 slug: social_home_dev
 description: Bleeding-edge build of Social Home — tracks the main branch.
 url: https://social-home.io
 arch:
   - aarch64
   - amd64
-  - armv7
 init: false
 homeassistant: "2026.3"
-boot: auto
 startup: services
-hassio_role: default
 panel_icon: mdi:home-account
 panel_title: Social Home (Dev)
 
 # Ingress proxies the web UI through HA's auth — no extra port to expose.
 ingress: true
-ingress_port: 8099
 
 # Supervisor APIs needed for HaBootstrap to read the HA owner,
 # mint the integration token, and push Supervisor discovery so
@@ -28,30 +24,19 @@ homeassistant_api: true
 auth_api: true
 
 # Persistent storage — separate from the stable add-on so the two
-# can coexist without trampling each other's SQLite.
+# can coexist without trampling each other's SQLite. Long-form
+# because the linter rejects the ``data:rw`` shorthand.
 map:
-  - data:rw
-
-# GFS endpoint (only listens when ``gfs_enable: true``); not
-# Ingress-proxied because peers dial it from the internet.
-ports:
-  8124/tcp: null
-ports_description:
-  8124/tcp: GFS federation endpoint (only used when GFS mode is enabled)
+  - type: data
+    read_only: false
 
 options:
   log_level: debug
-  turn_url: ""
-  turn_secret: ""
   ai_task_entity_id: ""
   stt_entity_id: ""
-  gfs_enable: false
-  gfs_base_url: ""
 
 schema:
   log_level: list(trace|debug|info|warning|error|fatal)
-  turn_url: str?
-  turn_secret: password?
   # HA ``ai_task.*`` entity (e.g. ``ai_task.openai``) used by the
   # calendar photo importer and any future AI-task feature. Empty
   # leaves the AI surface off instead of failing loudly.
@@ -59,7 +44,5 @@ schema:
   # HA ``stt.*`` entity used for in-app voice-to-text. Empty leaves
   # ``Capability.STT`` off so the SPA hides the mic affordance.
   stt_entity_id: str?
-  gfs_enable: bool
-  gfs_base_url: str?
 
 image: ghcr.io/social-home-io/ha-app-social-home-dev-{arch}

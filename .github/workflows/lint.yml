@@ -54,7 +54,11 @@ jobs:
       - uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: ${{ matrix.addon }}/Dockerfile
-          # ``DL3008`` (apt unpinned) and ``DL3013`` (pip
-          # unpinned) are noisy for HA add-ons; the upstream image
-          # already pins what matters.
-          ignore: DL3008,DL3013,DL3018,DL3059
+          # ``DL3006`` (always tag the version) fires on
+          # ``FROM ${BUILD_FROM}`` — Supervisor fills the build-arg
+          # from ``build.yaml`` so the tag is pinned, hadolint just
+          # can't see it. ``DL3008`` (apt unpinned), ``DL3013``
+          # (pip unpinned), ``DL3018`` (apk unpinned), and
+          # ``DL3059`` (consecutive RUN) are similarly noisy for
+          # HA add-ons.
+          ignore: DL3006,DL3008,DL3013,DL3018,DL3059
