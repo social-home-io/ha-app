@@ -18,13 +18,13 @@ troubleshooting tips.
 |---|---|---|
 | socialhome version | latest CalVer release | CalVer pre-release (`--pre`) |
 | Slug | `social_home` | `social_home_dev` |
-| `/config` mount | `/addon_configs/<repo>_social_home` | `/addon_configs/<repo>_social_home_dev` |
+| `/data` mount | `/addons_data/social_home` | `/addons_data/social_home_dev` |
 | Default `log_level` | `info` | `debug` |
 
 The two add-ons can run side by side — they get separate
 persistent volumes and slugs, but they share the same Ingress
-port (8099) and GFS port (8124), so the Supervisor only lets one
-of them be **started** at a time.
+port (8099), so the Supervisor only lets one of them be
+**started** at a time.
 
 ## Reporting issues
 

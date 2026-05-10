@@ -11,30 +11,24 @@
 
 bashio::log.info "Starting Social Home..."
 
-# /config is the addon_config mount (see config.yaml). Socialhome's
-# ``data_dir`` in the rendered TOML points here so SQLite + media
-# survive add-on updates.
-mkdir -p /config
+# /data is the add-on's persistent mount (see config.yaml).
+# Socialhome's ``data_dir`` in the rendered TOML points here so
+# SQLite + media survive add-on updates.
+mkdir -p /data
 
 # Stream the user options as a JSON document into ``tempio``,
 # which renders the Go-template ``social_home.toml.gtpl`` into
-# ``/config/social_home.toml``. The leading ``^`` on ``gfs_enable``
-# tells ``bashio::var.json`` to emit a raw boolean instead of
-# quoting it as a string — TOML keeps booleans unquoted.
+# ``/data/social_home.toml``.
 bashio::var.json \
     log_level         "$(bashio::config 'log_level')" \
-    turn_url          "$(bashio::config 'turn_url')" \
-    turn_secret       "$(bashio::config 'turn_secret')" \
     ai_task_entity_id "$(bashio::config 'ai_task_entity_id')" \
     stt_entity_id     "$(bashio::config 'stt_entity_id')" \
-    gfs_enable        "^$(bashio::config 'gfs_enable')" \
-    gfs_base_url      "$(bashio::config 'gfs_base_url')" \
   | tempio \
       -template /etc/social_home.toml.gtpl \
-      -out /config/social_home.toml
+      -out /data/social_home.toml
 
-bashio::log.info "Configuration written to /config/social_home.toml"
+bashio::log.info "Configuration written to /data/social_home.toml"
 
 # SUPERVISOR_TOKEN / SUPERVISOR_URL are injected by the HA
 # Supervisor; the Python core picks them up from the environment.
-exec python3 -m social_home.app --config /config/social_home.toml
+exec python3 -m social_home.app --config /data/social_home.toml

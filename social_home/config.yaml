@@ -24,33 +24,19 @@ homeassistant_api: true
 auth_api: true
 
 # Persistent storage — SQLite + media survive add-on updates.
-# ``addon_config`` is the modern slug (legacy ``data`` was dropped
-# from the add-on schema); it mounts at ``/config`` inside the
-# container, which is the path Social Home's ``data_dir`` points
-# at in ``social_home.toml.gtpl``.
+# Long-form because the addon-linter rejects the short ``data:rw``
+# shorthand; the long form spells out the same thing.
 map:
-  - addon_config:rw
-
-# GFS endpoint (only listens when ``gfs_enable: true``); not
-# Ingress-proxied because peers dial it from the internet.
-ports:
-  8124/tcp: null
-ports_description:
-  8124/tcp: GFS federation endpoint (only used when GFS mode is enabled)
+  - type: data
+    read_only: false
 
 options:
   log_level: info
-  turn_url: ""
-  turn_secret: ""
   ai_task_entity_id: ""
   stt_entity_id: ""
-  gfs_enable: false
-  gfs_base_url: ""
 
 schema:
   log_level: list(trace|debug|info|warning|error|fatal)
-  turn_url: str?
-  turn_secret: password?
   # HA ``ai_task.*`` entity (e.g. ``ai_task.openai``) used by the
   # calendar photo importer and any future AI-task feature. Empty
   # leaves the AI surface off instead of failing loudly.
@@ -58,7 +44,5 @@ schema:
   # HA ``stt.*`` entity used for in-app voice-to-text. Empty leaves
   # ``Capability.STT`` off so the SPA hides the mic affordance.
   stt_entity_id: str?
-  gfs_enable: bool
-  gfs_base_url: str?
 
 image: ghcr.io/social-home-io/ha-app-social-home-{arch}
