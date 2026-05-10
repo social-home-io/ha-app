@@ -2,32 +2,15 @@
 # ==============================================================================
 # s6-overlay v3 longrun for the Social Home server.
 #
-# Bootstrap logic (HA owner provisioning, integration token,
-# Supervisor discovery push) lives in the Python core's
-# ``HaBootstrap`` and fires on first start. This script's only job
-# is to render ``/data/social_home.toml`` from the add-on options
-# and ``exec`` the server.
+# ``/data/social_home.toml`` is rendered by the ``init-config``
+# oneshot before this longrun starts (declared via
+# ``dependencies.d/init-config``). Bootstrap logic (HA owner
+# provisioning, integration token, Supervisor discovery push)
+# lives in the Python core's ``HaBootstrap`` and fires on first
+# start.
 # ==============================================================================
 
 bashio::log.info "Starting Social Home..."
-
-# /data is the add-on's persistent mount (see config.yaml).
-# Socialhome's ``data_dir`` in the rendered TOML points here so
-# SQLite + media survive add-on updates.
-mkdir -p /data
-
-# Stream the user options as a JSON document into ``tempio``,
-# which renders the Go-template ``social_home.toml.gtpl`` into
-# ``/data/social_home.toml``.
-bashio::var.json \
-    log_level         "$(bashio::config 'log_level')" \
-    ai_task_entity_id "$(bashio::config 'ai_task_entity_id')" \
-    stt_entity_id     "$(bashio::config 'stt_entity_id')" \
-  | tempio \
-      -template /etc/social_home.toml.gtpl \
-      -out /data/social_home.toml
-
-bashio::log.info "Configuration written to /data/social_home.toml"
 
 # SUPERVISOR_TOKEN / SUPERVISOR_URL are injected by the HA
 # Supervisor; the Python core picks them up from the environment.
