@@ -1,6 +1,6 @@
 ---
 name: Social Home (Dev)
-version: "2026.5.10-dev"
+version: "2026.5.10"
 slug: social_home_dev
 description: Bleeding-edge build of Social Home — tracks the main branch.
 url: https://social-home.io

@@ -1,10 +1,10 @@
 ---
 # Dev add-on uses the same HA python-base image + style as stable
-# (see ``social_home/build.yaml`` for the rationale). The pin lives
-# here so the dev channel can ride ahead of stable on a CalVer
-# pre-release without the Supervisor sorting the two add-ons into
-# the wrong order; the ``-dev`` suffix on ``config.yaml``'s
-# ``version`` field keeps the Supervisor happy.
+# (see ``social_home/build.yaml`` for the rationale). The pin here
+# can run ahead of stable on a CalVer pre-release (e.g.
+# ``2026.5.11rc1``) — the two add-ons have separate slugs, so the
+# Supervisor treats them as independent installs and the versions
+# don't need to be ordered against each other.
 
 build_from:
   aarch64: ghcr.io/home-assistant/aarch64-base-python:3.14-alpine3.23
