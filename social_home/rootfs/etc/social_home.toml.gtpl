@@ -11,8 +11,16 @@ data_dir  = "/data"
 turn_url    = "{{ .turn_url }}"
 turn_secret = "{{ .turn_secret }}"
 
-[ai]
-calendar_import_agent = "{{ .ai_calendar_import_agent }}"
+# Platform-specific options under ``[homeassistant]`` flow through
+# to the HA adapter's ``self._options`` (see
+# ``socialhome.platform.ha.adapter`` in the core repo). Empty
+# strings leave the matching capability off — the SH backend
+# advertises ``Capability.STT`` / ``Capability.AI`` only when the
+# corresponding entity is set, so the SPA hides the surface
+# entirely instead of failing at use-time.
+[homeassistant]
+ai_task_entity_id = "{{ .ai_task_entity_id }}"
+stt_entity_id     = "{{ .stt_entity_id }}"
 
 [gfs]
 enable   = {{ .gfs_enable }}

@@ -21,7 +21,8 @@ takes care of everything else.
 | `log_level` | enum | `trace`, `debug`, `info`, `warning`, `error`, `fatal`. Defaults to `info`. |
 | `turn_url` | string | Optional TURN URL — for federation across strict NAT. Set to a `turn:` or `turns:` URL when peers fail to connect peer-to-peer. |
 | `turn_secret` | password | TURN HMAC-SHA1 shared secret (time-limited credentials). |
-| `ai_calendar_import_agent` | string | Optional HA AI Task entity ID used by the calendar photo importer (e.g. `ai_task.openai`). |
+| `ai_task_entity_id` | string | HA `ai_task.*` entity (e.g. `ai_task.openai`) used by the calendar photo importer and any future AI-task feature. Empty leaves the AI surface off — the SPA hides AI affordances instead of failing at use-time. |
+| `stt_entity_id` | string | HA `stt.*` entity used for in-app voice-to-text. Empty leaves `Capability.STT` off so the SPA hides the mic button. |
 | `gfs_enable` | bool | Run this instance as a Global Federation Server. Most users leave this off. |
 | `gfs_base_url` | string | When GFS is enabled, the publicly-reachable base URL of this instance. |
 
