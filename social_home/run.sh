@@ -19,12 +19,13 @@ mkdir -p /data
 # tells ``bashio::var.json`` to emit a raw boolean instead of
 # quoting it as a string — TOML keeps booleans unquoted.
 bashio::var.json \
-    log_level                "$(bashio::config 'log_level')" \
-    turn_url                 "$(bashio::config 'turn_url')" \
-    turn_secret              "$(bashio::config 'turn_secret')" \
-    ai_calendar_import_agent "$(bashio::config 'ai_calendar_import_agent')" \
-    gfs_enable               "^$(bashio::config 'gfs_enable')" \
-    gfs_base_url             "$(bashio::config 'gfs_base_url')" \
+    log_level         "$(bashio::config 'log_level')" \
+    turn_url          "$(bashio::config 'turn_url')" \
+    turn_secret       "$(bashio::config 'turn_secret')" \
+    ai_task_entity_id "$(bashio::config 'ai_task_entity_id')" \
+    stt_entity_id     "$(bashio::config 'stt_entity_id')" \
+    gfs_enable        "^$(bashio::config 'gfs_enable')" \
+    gfs_base_url      "$(bashio::config 'gfs_base_url')" \
   | tempio \
       -template /etc/social_home.toml.gtpl \
       -out /data/social_home.toml
