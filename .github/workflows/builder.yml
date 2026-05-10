@@ -11,10 +11,14 @@ concurrency:
   group: build-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
-# We don't use ``home-assistant/builder`` because its helper image is
-# amd64-only and can't run on a native arm64 runner — which is the
-# whole reason we left QEMU. Native ``docker/build-push-action``
-# gives us one job per arch on the matching native runner.
+# The ``home-assistant/builder`` action hardcodes the amd64-builder
+# image, which can't ``exec`` on a native arm64 runner. Inline the
+# action's ``docker run`` ourselves so we can pick the matching
+# per-arch builder image (``ghcr.io/home-assistant/${arch}-builder``)
+# on the matching native runner — no QEMU, no exec-format errors.
+
+env:
+  BUILDER_VERSION: "2024.08.2"
 
 jobs:
   prepare:
@@ -55,40 +59,18 @@ jobs:
         include:
           - arch: amd64
             runner: ubuntu-24.04
-            platform: linux/amd64
           - arch: aarch64
             runner: ubuntu-24.04-arm
-            platform: linux/arm64
     steps:
       - uses: actions/checkout@v4
 
       - name: Read add-on metadata
         id: meta
         run: |
-          # Pull the values we need out of config.yaml / build.yaml.
-          # ``yq`` ships on ubuntu-* runners; we don't want to
-          # re-implement YAML parsing in bash.
           version=$(yq -r '.version' "${{ matrix.addon }}/config.yaml")
           slug=$(yq -r '.slug' "${{ matrix.addon }}/config.yaml")
-          name=$(yq -r '.name' "${{ matrix.addon }}/config.yaml")
-          description=$(yq -r '.description' "${{ matrix.addon }}/config.yaml")
-          image=$(yq -r '.image' "${{ matrix.addon }}/config.yaml" \
-            | sed "s|{arch}|${{ matrix.arch }}|g")
-          build_from=$(yq -r ".build_from.${{ matrix.arch }}" "${{ matrix.addon }}/build.yaml")
-          socialhome_version=$(yq -r '.args.SOCIALHOME_VERSION' "${{ matrix.addon }}/build.yaml")
-          {
-            echo "version=${version}"
-            echo "slug=${slug}"
-            echo "name=${name}"
-            echo "description=${description}"
-            echo "image=${image}"
-            echo "build_from=${build_from}"
-            echo "socialhome_version=${socialhome_version}"
-            echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Set up Docker buildx
-        uses: docker/setup-buildx-action@v3
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "slug=${slug}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to ghcr.io
         if: needs.prepare.outputs.publish == 'true'
@@ -98,23 +80,34 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build${{ needs.prepare.outputs.publish == 'true' && ' and push' || '' }}
-        uses: docker/build-push-action@v5
-        with:
-          context: ./${{ matrix.addon }}
-          file: ./${{ matrix.addon }}/Dockerfile
-          platforms: ${{ matrix.platform }}
-          push: ${{ needs.prepare.outputs.publish == 'true' }}
-          tags: |
-            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}
-            ${{ steps.meta.outputs.image }}:latest
-          build-args: |
-            BUILD_FROM=${{ steps.meta.outputs.build_from }}
-            BUILD_ARCH=${{ matrix.arch }}
-            BUILD_NAME=${{ steps.meta.outputs.name }}
-            BUILD_DESCRIPTION=${{ steps.meta.outputs.description }}
-            BUILD_VERSION=${{ steps.meta.outputs.version }}
-            BUILD_REPOSITORY=${{ github.repository }}
-            BUILD_REF=${{ github.sha }}
-            BUILD_DATE=${{ steps.meta.outputs.build_date }}
-            SOCIALHOME_VERSION=${{ steps.meta.outputs.socialhome_version }}
+      - name: Build (and optionally push)
+        run: |
+          # Pick the per-arch HA builder image matching the host
+          # runner. ``home-assistant/builder@2024.08.2``'s action
+          # would have pinned amd64-builder, which is exec-format
+          # incompatible with the ubuntu-24.04-arm runner.
+          BUILDER_IMG="ghcr.io/home-assistant/${{ matrix.arch }}-builder:${BUILDER_VERSION}"
+          docker pull "${BUILDER_IMG}"
+
+          # Pass through every env var the builder might inspect,
+          # minus the noisy / runner-specific ones (mirrors the
+          # action.yml stanza).
+          env > /tmp/env_file
+          sed -i "/\(HOME\|TERM\|PWD\|HOSTNAME\|PATH\|SHLVL\|USER\|GOROOT\)/d" /tmp/env_file
+
+          PUBLISH_FLAG="--test"
+          if [[ "${{ needs.prepare.outputs.publish }}" == "true" ]]; then
+            PUBLISH_FLAG="--docker-hub-check"
+          fi
+
+          docker run --rm --privileged \
+              -v /var/run/docker.sock:/var/run/docker.sock:ro \
+              -v ~/.docker:/root/.docker \
+              -v "${{ github.workspace }}:/data" \
+              --env-file /tmp/env_file \
+              "${BUILDER_IMG}" \
+              --${{ matrix.arch }} \
+              --target ${{ matrix.addon }} \
+              --image "social-home-io/ha-app-${{ steps.meta.outputs.slug }}-{arch}" \
+              --version "${{ steps.meta.outputs.version }}" \
+              ${PUBLISH_FLAG}
