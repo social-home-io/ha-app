@@ -11,6 +11,11 @@ concurrency:
   group: build-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
+# We don't use ``home-assistant/builder`` because its helper image is
+# amd64-only and can't run on a native arm64 runner — which is the
+# whole reason we left QEMU. Native ``docker/build-push-action``
+# gives us one job per arch on the matching native runner.
+
 jobs:
   prepare:
     name: Decide what to build
@@ -38,9 +43,6 @@ jobs:
   build:
     name: Build ${{ matrix.addon }} (${{ matrix.arch }})
     needs: prepare
-    # Native arm64 runner for aarch64 — vendored usrsctp / libdatachannel
-    # in aiolibdatachannel crashes gcc under QEMU emulation; building
-    # on a native arm64 host skips the emulator entirely.
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
@@ -53,21 +55,40 @@ jobs:
         include:
           - arch: amd64
             runner: ubuntu-24.04
+            platform: linux/amd64
           - arch: aarch64
             runner: ubuntu-24.04-arm
+            platform: linux/arm64
     steps:
       - uses: actions/checkout@v4
 
       - name: Read add-on metadata
         id: meta
         run: |
-          # ``frenck/action-addon-information`` parses
-          # ``config.yaml`` so the builder gets the version + slug
-          # without us re-implementing the YAML walk.
+          # Pull the values we need out of config.yaml / build.yaml.
+          # ``yq`` ships on ubuntu-* runners; we don't want to
+          # re-implement YAML parsing in bash.
           version=$(yq -r '.version' "${{ matrix.addon }}/config.yaml")
           slug=$(yq -r '.slug' "${{ matrix.addon }}/config.yaml")
-          echo "version=${version}" >> "$GITHUB_OUTPUT"
-          echo "slug=${slug}" >> "$GITHUB_OUTPUT"
+          name=$(yq -r '.name' "${{ matrix.addon }}/config.yaml")
+          description=$(yq -r '.description' "${{ matrix.addon }}/config.yaml")
+          image=$(yq -r '.image' "${{ matrix.addon }}/config.yaml" \
+            | sed "s|{arch}|${{ matrix.arch }}|g")
+          build_from=$(yq -r ".build_from.${{ matrix.arch }}" "${{ matrix.addon }}/build.yaml")
+          socialhome_version=$(yq -r '.args.SOCIALHOME_VERSION' "${{ matrix.addon }}/build.yaml")
+          {
+            echo "version=${version}"
+            echo "slug=${slug}"
+            echo "name=${name}"
+            echo "description=${description}"
+            echo "image=${image}"
+            echo "build_from=${build_from}"
+            echo "socialhome_version=${socialhome_version}"
+            echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to ghcr.io
         if: needs.prepare.outputs.publish == 'true'
@@ -77,12 +98,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build (and optionally push)
-        uses: home-assistant/builder@2024.08.2
+      - name: Build${{ needs.prepare.outputs.publish == 'true' && ' and push' || '' }}
+        uses: docker/build-push-action@v5
         with:
-          args: |
-            --${{ matrix.arch }} \
-            --target ${{ matrix.addon }} \
-            --image "social-home-io/ha-app-${{ steps.meta.outputs.slug }}-{arch}" \
-            --version "${{ steps.meta.outputs.version }}" \
-            ${{ needs.prepare.outputs.publish == 'true' && '--docker-hub-check' || '--test' }}
+          context: ./${{ matrix.addon }}
+          file: ./${{ matrix.addon }}/Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: ${{ needs.prepare.outputs.publish == 'true' }}
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}
+            ${{ steps.meta.outputs.image }}:latest
+          build-args: |
+            BUILD_FROM=${{ steps.meta.outputs.build_from }}
+            BUILD_ARCH=${{ matrix.arch }}
+            BUILD_NAME=${{ steps.meta.outputs.name }}
+            BUILD_DESCRIPTION=${{ steps.meta.outputs.description }}
+            BUILD_VERSION=${{ steps.meta.outputs.version }}
+            BUILD_REPOSITORY=${{ github.repository }}
+            BUILD_REF=${{ github.sha }}
+            BUILD_DATE=${{ steps.meta.outputs.build_date }}
+            SOCIALHOME_VERSION=${{ steps.meta.outputs.socialhome_version }}
