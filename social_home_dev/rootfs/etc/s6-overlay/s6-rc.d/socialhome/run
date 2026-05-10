@@ -11,7 +11,8 @@
 
 bashio::log.info "Starting Social Home..."
 
-mkdir -p /data
+# /config is the addon_config mount (see config.yaml).
+mkdir -p /config
 
 bashio::var.json \
     log_level         "$(bashio::config 'log_level')" \
@@ -23,8 +24,8 @@ bashio::var.json \
     gfs_base_url      "$(bashio::config 'gfs_base_url')" \
   | tempio \
       -template /etc/social_home.toml.gtpl \
-      -out /data/social_home.toml
+      -out /config/social_home.toml
 
-bashio::log.info "Configuration written to /data/social_home.toml"
+bashio::log.info "Configuration written to /config/social_home.toml"
 
-exec python3 -m social_home.app --config /data/social_home.toml
+exec python3 -m social_home.app --config /config/social_home.toml

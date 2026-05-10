@@ -5,7 +5,7 @@
 [server]
 mode      = "ha"
 log_level = "{{ .log_level }}"
-data_dir  = "/data"
+data_dir  = "/config"
 
 [webrtc]
 turn_url    = "{{ .turn_url }}"

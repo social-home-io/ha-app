@@ -4,20 +4,42 @@
 #
 # Same shape as ``social_home/Dockerfile`` — see that file for the
 # layer-by-layer rationale. The only deliberate difference is that
-# ``--pre`` is passed to ``pip3`` so the dev channel can pin a
-# CalVer pre-release (e.g. ``2026.5.11rc1``) before the same version
-# is promoted to the stable add-on.
+# ``--pre`` is passed to pip so the dev channel can pin a CalVer
+# pre-release (e.g. ``2026.5.11rc1``) before the same version is
+# promoted to the stable add-on.
 
 ARG BUILD_FROM
+
+# ---------- builder stage ----------------------------------------
+FROM ${BUILD_FROM} AS builder
+
+# hadolint ignore=DL3018
+RUN apk add --no-cache \
+        build-base \
+        cmake \
+        git \
+        linux-headers \
+        openssl-dev \
+        pkgconf
+
+ARG SOCIALHOME_VERSION
+RUN pip3 wheel --no-cache-dir --pre --wheel-dir=/wheels \
+        "socialhome==${SOCIALHOME_VERSION}"
+
+# ---------- final stage ------------------------------------------
 FROM ${BUILD_FROM}
 
+# hadolint ignore=DL3018
 RUN apk add --no-cache \
         ffmpeg \
         libjpeg-turbo \
         libwebp
 
 ARG SOCIALHOME_VERSION
-RUN pip3 install --no-cache-dir --pre "socialhome==${SOCIALHOME_VERSION}"
+COPY --from=builder /wheels /tmp/wheels
+RUN pip3 install --no-cache-dir --no-index --find-links=/tmp/wheels \
+        "socialhome==${SOCIALHOME_VERSION}" \
+ && rm -rf /tmp/wheels
 
 COPY rootfs /
 

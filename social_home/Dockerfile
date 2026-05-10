@@ -2,35 +2,52 @@
 #
 # Social Home — Home Assistant add-on (stable channel).
 #
-# Built on the official Home Assistant Python base image, which
-# ships Alpine + s6-overlay v3 + bashio + tempio + ``/usr/local``
-# Python 3.14 with pip already wired up to the HA musllinux wheel
-# index. Mirrors the home-assistant/addons reference style (see
-# e.g. ``silabs_flasher``).
+# Built on the official HA Python base image (Alpine + s6-overlay
+# v3 + bashio + tempio + ``/usr/local`` Python 3.14). The SPA bundle
+# is baked into the upstream socialhome wheel so this image needs
+# no node / pnpm.
 #
-# The SPA bundle is baked into the upstream socialhome wheel by the
-# socialhome publish workflow, so the image needs no node / pnpm.
+# Two-stage build: the ``builder`` stage carries the C/C++ toolchain
+# needed to compile native deps that don't publish musllinux wheels
+# (notably ``aiolibdatachannel``, which vendors ``libdatachannel``
+# and builds it via CMake). The final stage installs from the
+# resulting wheelhouse with ``--no-index`` so no toolchain bytes
+# survive into the runtime image.
 
 ARG BUILD_FROM
+
+# ---------- builder stage ----------------------------------------
+FROM ${BUILD_FROM} AS builder
+
+# hadolint ignore=DL3018
+RUN apk add --no-cache \
+        build-base \
+        cmake \
+        git \
+        linux-headers \
+        openssl-dev \
+        pkgconf
+
+ARG SOCIALHOME_VERSION
+RUN pip3 wheel --no-cache-dir --wheel-dir=/wheels \
+        "socialhome==${SOCIALHOME_VERSION}"
+
+# ---------- final stage ------------------------------------------
 FROM ${BUILD_FROM}
 
 # Runtime libs — match the upstream ``socialhome/Dockerfile.sh``
-# install list so behaviour parity holds. ffmpeg powers SpacePost /
-# BazaarListing video transcoding; libjpeg-turbo + libwebp are
-# Pillow's runtime deps for JPEG / WebP IO.
+# install list so behaviour parity holds.
+# hadolint ignore=DL3018
 RUN apk add --no-cache \
         ffmpeg \
         libjpeg-turbo \
         libwebp
 
-# Install Social Home from PyPI. ``SOCIALHOME_VERSION`` comes from
-# ``build.yaml`` so a CalVer bump there repins the install on the
-# next Supervisor refresh. The HA base image's pip is already
-# configured with ``PIP_EXTRA_INDEX_URL`` pointing at the HA
-# musllinux wheel index, which gives us prebuilt wheels for the
-# native deps (cryptography, av, aiolibdatachannel, ...) on Alpine.
 ARG SOCIALHOME_VERSION
-RUN pip3 install --no-cache-dir "socialhome==${SOCIALHOME_VERSION}"
+COPY --from=builder /wheels /tmp/wheels
+RUN pip3 install --no-cache-dir --no-index --find-links=/tmp/wheels \
+        "socialhome==${SOCIALHOME_VERSION}" \
+ && rm -rf /tmp/wheels
 
 # rootfs ships the s6-overlay v3 service files
 # (``/etc/s6-overlay/s6-rc.d/socialhome/``) plus the

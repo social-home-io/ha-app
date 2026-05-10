@@ -16,9 +16,9 @@ troubleshooting tips.
 
 | Aspect | Stable | Dev |
 |---|---|---|
-| Image tag | `:<release>` (CalVer) | `:main` (rebuilt on every push) |
+| socialhome version | latest CalVer release | CalVer pre-release (`--pre`) |
 | Slug | `social_home` | `social_home_dev` |
-| `/data` mount | `/addon_data/social_home` | `/addon_data/social_home_dev` |
+| `/config` mount | `/addon_configs/<repo>_social_home` | `/addon_configs/<repo>_social_home_dev` |
 | Default `log_level` | `info` | `debug` |
 
 The two add-ons can run side by side — they get separate

@@ -9,15 +9,12 @@ arch:
   - amd64
 init: false
 homeassistant: "2026.3"
-boot: auto
 startup: services
-hassio_role: default
 panel_icon: mdi:home-account
 panel_title: Social Home
 
 # Ingress proxies the web UI through HA's auth — no extra port to expose.
 ingress: true
-ingress_port: 8099
 
 # Supervisor APIs needed for HaBootstrap to read the HA owner,
 # mint the integration token, and push Supervisor discovery so
@@ -27,8 +24,12 @@ homeassistant_api: true
 auth_api: true
 
 # Persistent storage — SQLite + media survive add-on updates.
+# ``addon_config`` is the modern slug (legacy ``data`` was dropped
+# from the add-on schema); it mounts at ``/config`` inside the
+# container, which is the path Social Home's ``data_dir`` points
+# at in ``social_home.toml.gtpl``.
 map:
-  - data:rw
+  - addon_config:rw
 
 # GFS endpoint (only listens when ``gfs_enable: true``); not
 # Ingress-proxied because peers dial it from the internet.

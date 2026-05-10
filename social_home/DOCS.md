@@ -28,9 +28,10 @@ takes care of everything else.
 
 ## Storage
 
-The add-on persists everything to `/data` (mapped to
-`/addon_data/social_home` on the host). SQLite, media files, and
-the integration token survive add-on updates.
+The add-on persists everything to `/config` (the `addon_config`
+mount, mapped to `/addon_configs/<repo>_social_home` on the host).
+SQLite, media files, and the integration token survive add-on
+updates.
 
 ## Network
 
