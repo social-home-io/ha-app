@@ -46,7 +46,7 @@ jobs:
       fail-fast: false
       matrix:
         addon: ${{ fromJson(needs.prepare.outputs.addons) }}
-        arch: [aarch64, amd64, armv7]
+        arch: [aarch64, amd64]
     steps:
       - uses: actions/checkout@v4
 

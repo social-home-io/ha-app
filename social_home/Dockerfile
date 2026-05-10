@@ -1,30 +1,47 @@
 # syntax=docker/dockerfile:1.7
 #
-# Layer the HA add-on plumbing (s6-overlay init, bashio shell
-# helpers, tempio template renderer) on top of the canonical
-# upstream Social Home image so the Python install matches what
-# runs in standalone Docker deployments.
+# Social Home — Home Assistant add-on (stable channel).
 #
-# ``BUILD_FROM`` is filled in by ``build.yaml`` per architecture
-# (stable pins a CalVer tag; dev tracks ``:main``).
+# Built on the official ``python:3.14-slim`` image (Debian slim).
+# Mirrors the home-assistant/addons reference style (see
+# ``configurator``): ``BUILD_FROM`` is filled in by ``build.yaml``,
+# the pinned socialhome version comes through as a build-arg, and
+# the package is installed straight from PyPI. The SPA bundle is
+# baked into the upstream wheel by the socialhome publish workflow,
+# so this image needs no node / pnpm.
+#
+# The HA add-on plumbing (s6-overlay init, bashio shell helpers,
+# tempio template renderer) is layered on top so ``run.sh`` can
+# read add-on options via ``bashio::config`` and render the runtime
+# TOML on every start.
 
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
 ENV LANG=C.UTF-8 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
 
 ARG S6_OVERLAY_VERSION="3.2.0.2"
 ARG BASHIO_VERSION="0.16.2"
 ARG TEMPIO_VERSION="2024.11.2"
 
-USER root
-
-# Tools needed only at build time. Keep the resulting image lean
-# by purging caches in the same layer.
+# System deps:
+#  - bash, ca-certificates, curl, jq, xz-utils: HA add-on plumbing.
+#  - ffmpeg, libjpeg-turbo-progs, libwebp-dev: socialhome runtime
+#    (video transcoding + Pillow). Match the upstream
+#    ``Dockerfile.sh`` install list so behaviour parity holds.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-        bash ca-certificates curl jq xz-utils \
+        bash \
+        ca-certificates \
+        curl \
+        ffmpeg \
+        jq \
+        libjpeg-turbo-progs \
+        libwebp-dev \
+        xz-utils \
  && rm -rf /var/lib/apt/lists/*
 
 # s6-overlay — provides ``/init`` so ``CMD`` can drop privileges,
@@ -57,12 +74,18 @@ RUN ARCH="$(uname -m)" \
  && case "${ARCH}" in \
         x86_64)  TEMPIO_ARCH=amd64 ;; \
         aarch64) TEMPIO_ARCH=aarch64 ;; \
-        armv7l)  TEMPIO_ARCH=armv7 ;; \
         *)       echo "Unsupported tempio arch: ${ARCH}" >&2; exit 1 ;; \
     esac \
  && curl -fsSLo /usr/bin/tempio \
         "https://github.com/home-assistant/tempio/releases/download/${TEMPIO_VERSION}/tempio_${TEMPIO_ARCH}" \
  && chmod a+x /usr/bin/tempio
+
+# Install Social Home from PyPI. ``SOCIALHOME_VERSION`` is passed in
+# from ``build.yaml`` so a CalVer bump there is enough to repin the
+# install on the next Supervisor refresh. The SPA bundle ships
+# inside the wheel under ``socialhome/static/``.
+ARG SOCIALHOME_VERSION
+RUN pip install --no-cache-dir "socialhome==${SOCIALHOME_VERSION}"
 
 COPY rootfs /
 COPY run.sh /run.sh

@@ -1,13 +1,12 @@
 ---
 name: Social Home (Dev)
-version: "2026.4.25-dev"
+version: "2026.5.10-dev"
 slug: social_home_dev
 description: Bleeding-edge build of Social Home — tracks the main branch.
 url: https://social-home.io
 arch:
   - aarch64
   - amd64
-  - armv7
 init: false
 homeassistant: "2026.3"
 boot: auto

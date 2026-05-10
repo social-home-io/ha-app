@@ -1,13 +1,25 @@
 ---
-# Stable add-on pins the upstream Social Home image to a CalVer
-# tag so a Supervisor restart never silently swaps Python or
-# socialhome versions out from under the user. Bump in lock-step
-# with the ``version`` in ``config.yaml``.
+# Stable add-on builds on the official ``python:3.14-slim``
+# (Debian slim) image and installs ``socialhome==${SOCIALHOME_VERSION}``
+# from PyPI inside the Dockerfile. Mirrors the home-assistant/addons
+# reference style (see ``configurator``) — Supervisor passes
+# ``args`` through as build-args so bumping the pin here is enough to
+# repin the install on the next add-on update. ``config.yaml``'s
+# ``version`` field still drives the user-visible add-on version and
+# should be bumped in lock-step.
+#
+# armv7 is unsupported: several runtime dependencies
+# (``aiolibdatachannel``, ``cryptography``, ``av``) only publish
+# cp314 manylinux wheels for x86_64 / aarch64, and source-building
+# them on armv7 inside a Supervisor host doesn't finish in any
+# reasonable time.
 
 build_from:
-  aarch64: ghcr.io/social-home-io/socialhome:2026.4.25
-  amd64: ghcr.io/social-home-io/socialhome:2026.4.25
-  armv7: ghcr.io/social-home-io/socialhome:2026.4.25
+  aarch64: python:3.14-slim
+  amd64: python:3.14-slim
+
+args:
+  SOCIALHOME_VERSION: "2026.5.10"
 
 labels:
   org.opencontainers.image.title: Social Home

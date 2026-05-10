@@ -1,13 +1,12 @@
 ---
 name: Social Home
-version: "2026.4.25"
+version: "2026.5.10"
 slug: social_home
 description: Your private, federated household social network.
 url: https://social-home.io
 arch:
   - aarch64
   - amd64
-  - armv7
 init: false
 homeassistant: "2026.3"
 boot: auto

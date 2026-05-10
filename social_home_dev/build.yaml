@@ -1,14 +1,23 @@
 ---
-# Dev add-on always rebuilds against ``ghcr.io/social-home-io/socialhome:main``
-# so every push to the upstream main branch lands here on the
-# next Supervisor refresh. ``config.yaml`` carries
-# ``2026.4.25-dev`` so the Supervisor sorts dev *ahead* of stable
-# and the two add-ons coexist without a version collision.
+# Dev add-on builds on the official ``python:3.14-slim``
+# (Debian slim) image and installs ``socialhome==${SOCIALHOME_VERSION}``
+# from PyPI inside the Dockerfile — same shape as the stable
+# channel. The pin lives here (not in ``config.yaml``) so the dev
+# channel can ride ahead of stable on a CalVer pre-release without
+# the Supervisor sorting the two add-ons into the wrong order; the
+# ``-dev`` suffix on ``config.yaml``'s ``version`` field keeps the
+# Supervisor happy.
+#
+# armv7 is unsupported here for the same reason as stable: missing
+# cp314 manylinux wheels for ``aiolibdatachannel`` / ``cryptography``
+# / ``av``.
 
 build_from:
-  aarch64: ghcr.io/social-home-io/socialhome:main
-  amd64: ghcr.io/social-home-io/socialhome:main
-  armv7: ghcr.io/social-home-io/socialhome:main
+  aarch64: python:3.14-slim
+  amd64: python:3.14-slim
+
+args:
+  SOCIALHOME_VERSION: "2026.5.10"
 
 labels:
   org.opencontainers.image.title: Social Home (Dev)

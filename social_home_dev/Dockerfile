@@ -1,35 +1,38 @@
 # syntax=docker/dockerfile:1.7
 #
-# Layer the HA add-on plumbing (s6-overlay init, bashio shell
-# helpers, tempio template renderer) on top of the canonical
-# upstream Social Home image so the Python install matches what
-# runs in standalone Docker deployments.
+# Social Home — Home Assistant add-on (dev channel).
 #
-# ``BUILD_FROM`` is filled in by ``build.yaml`` per architecture
-# (stable pins a CalVer tag; dev tracks ``:main``).
+# Same shape as the stable ``social_home/Dockerfile`` — see that
+# file for the layer-by-layer rationale. The only deliberate
+# difference is the version pin: this channel can ride ahead of
+# stable by bumping ``SOCIALHOME_VERSION`` in ``build.yaml`` (e.g.
+# to a CalVer pre-release like ``2026.5.11rc1``) before the same
+# version is promoted to the stable add-on.
 
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
 ENV LANG=C.UTF-8 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
 
 ARG S6_OVERLAY_VERSION="3.2.0.2"
 ARG BASHIO_VERSION="0.16.2"
 ARG TEMPIO_VERSION="2024.11.2"
 
-USER root
-
-# Tools needed only at build time. Keep the resulting image lean
-# by purging caches in the same layer.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-        bash ca-certificates curl jq xz-utils \
+        bash \
+        ca-certificates \
+        curl \
+        ffmpeg \
+        jq \
+        libjpeg-turbo-progs \
+        libwebp-dev \
+        xz-utils \
  && rm -rf /var/lib/apt/lists/*
 
-# s6-overlay — provides ``/init`` so ``CMD`` can drop privileges,
-# stage env vars from ``/run/s6/container_environment``, and run
-# the ``with-contenv`` shebang in ``run.sh``.
 RUN ARCH="$(uname -m)" \
  && curl -fsSLo /tmp/s6-noarch.tar.xz \
         "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
@@ -39,9 +42,6 @@ RUN ARCH="$(uname -m)" \
  && tar -C / -Jxpf /tmp/s6-arch.tar.xz \
  && rm /tmp/s6-*.tar.xz
 
-# bashio — the shell library every Supervisor add-on uses to read
-# ``options.json``, log with structured levels, and call the
-# Supervisor API.
 RUN curl -fsSLo /tmp/bashio.tar.gz \
         "https://github.com/hassio-addons/bashio/archive/refs/tags/v${BASHIO_VERSION}.tar.gz" \
  && tar -C /tmp -xzf /tmp/bashio.tar.gz \
@@ -49,26 +49,26 @@ RUN curl -fsSLo /tmp/bashio.tar.gz \
  && ln -s /usr/lib/bashio/bashio /usr/bin/bashio \
  && rm -rf /tmp/bashio.tar.gz "/tmp/bashio-${BASHIO_VERSION}"
 
-# tempio — Go-template renderer maintained by Home Assistant. We
-# feed it a JSON document on stdin and render
-# ``social_home.toml.gtpl`` into ``/data/social_home.toml`` on
-# every start.
 RUN ARCH="$(uname -m)" \
  && case "${ARCH}" in \
         x86_64)  TEMPIO_ARCH=amd64 ;; \
         aarch64) TEMPIO_ARCH=aarch64 ;; \
-        armv7l)  TEMPIO_ARCH=armv7 ;; \
         *)       echo "Unsupported tempio arch: ${ARCH}" >&2; exit 1 ;; \
     esac \
  && curl -fsSLo /usr/bin/tempio \
         "https://github.com/home-assistant/tempio/releases/download/${TEMPIO_VERSION}/tempio_${TEMPIO_ARCH}" \
  && chmod a+x /usr/bin/tempio
 
+# Install Social Home from PyPI. Pre-releases are allowed so the
+# dev channel can pin a CalVer release-candidate before it lands on
+# the stable add-on.
+ARG SOCIALHOME_VERSION
+RUN pip install --no-cache-dir --pre "socialhome==${SOCIALHOME_VERSION}"
+
 COPY rootfs /
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
 
-# OCI labels — Supervisor surfaces ``io.hass.*`` in the add-on UI.
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
