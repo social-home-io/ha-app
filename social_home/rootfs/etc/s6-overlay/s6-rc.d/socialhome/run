@@ -1,12 +1,12 @@
-#!/usr/bin/with-contenv bashio
+#!/command/with-contenv bashio
 # ==============================================================================
-# run.sh — Social Home HA add-on entry point.
+# s6-overlay v3 longrun for the Social Home server.
 #
-# All bootstrap logic (HA owner provisioning, integration token,
-# Supervisor discovery push) is handled by the Python core's
-# ``HaBootstrap`` on first start. This script's only job is to
-# render ``/data/social_home.toml`` from the user options and
-# ``exec`` the server.
+# Bootstrap logic (HA owner provisioning, integration token,
+# Supervisor discovery push) lives in the Python core's
+# ``HaBootstrap`` and fires on first start. This script's only job
+# is to render ``/data/social_home.toml`` from the add-on options
+# and ``exec`` the server.
 # ==============================================================================
 
 bashio::log.info "Starting Social Home..."
@@ -34,4 +34,4 @@ bashio::log.info "Configuration written to /data/social_home.toml"
 
 # SUPERVISOR_TOKEN / SUPERVISOR_URL are injected by the HA
 # Supervisor; the Python core picks them up from the environment.
-exec python -m social_home.app --config /data/social_home.toml
+exec python3 -m social_home.app --config /data/social_home.toml

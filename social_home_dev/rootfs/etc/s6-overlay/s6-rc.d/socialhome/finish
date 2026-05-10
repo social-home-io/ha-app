@@ -1,0 +1,4 @@
+#!/command/execlineb -S0
+if -n { s6-test ${1} -eq 0 }
+if -n { s6-test ${1} -eq 256 }
+s6-svscanctl -t /run/s6/service

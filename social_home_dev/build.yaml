@@ -1,20 +1,14 @@
 ---
-# Dev add-on builds on the official ``python:3.14-slim``
-# (Debian slim) image and installs ``socialhome==${SOCIALHOME_VERSION}``
-# from PyPI inside the Dockerfile — same shape as the stable
-# channel. The pin lives here (not in ``config.yaml``) so the dev
-# channel can ride ahead of stable on a CalVer pre-release without
-# the Supervisor sorting the two add-ons into the wrong order; the
-# ``-dev`` suffix on ``config.yaml``'s ``version`` field keeps the
-# Supervisor happy.
-#
-# armv7 is unsupported here for the same reason as stable: missing
-# cp314 manylinux wheels for ``aiolibdatachannel`` / ``cryptography``
-# / ``av``.
+# Dev add-on uses the same HA python-base image + style as stable
+# (see ``social_home/build.yaml`` for the rationale). The pin lives
+# here so the dev channel can ride ahead of stable on a CalVer
+# pre-release without the Supervisor sorting the two add-ons into
+# the wrong order; the ``-dev`` suffix on ``config.yaml``'s
+# ``version`` field keeps the Supervisor happy.
 
 build_from:
-  aarch64: python:3.14-slim
-  amd64: python:3.14-slim
+  aarch64: ghcr.io/home-assistant/aarch64-base-python:3.14-alpine3.23
+  amd64: ghcr.io/home-assistant/amd64-base-python:3.14-alpine3.23
 
 args:
   SOCIALHOME_VERSION: "2026.5.10"

@@ -1,0 +1,30 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# s6-overlay v3 longrun for the Social Home server (dev channel).
+#
+# Bootstrap logic (HA owner provisioning, integration token,
+# Supervisor discovery push) lives in the Python core's
+# ``HaBootstrap`` and fires on first start. This script's only job
+# is to render ``/data/social_home.toml`` from the add-on options
+# and ``exec`` the server.
+# ==============================================================================
+
+bashio::log.info "Starting Social Home..."
+
+mkdir -p /data
+
+bashio::var.json \
+    log_level         "$(bashio::config 'log_level')" \
+    turn_url          "$(bashio::config 'turn_url')" \
+    turn_secret       "$(bashio::config 'turn_secret')" \
+    ai_task_entity_id "$(bashio::config 'ai_task_entity_id')" \
+    stt_entity_id     "$(bashio::config 'stt_entity_id')" \
+    gfs_enable        "^$(bashio::config 'gfs_enable')" \
+    gfs_base_url      "$(bashio::config 'gfs_base_url')" \
+  | tempio \
+      -template /etc/social_home.toml.gtpl \
+      -out /data/social_home.toml
+
+bashio::log.info "Configuration written to /data/social_home.toml"
+
+exec python3 -m social_home.app --config /data/social_home.toml

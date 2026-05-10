@@ -1,22 +1,22 @@
 ---
-# Stable add-on builds on the official ``python:3.14-slim``
-# (Debian slim) image and installs ``socialhome==${SOCIALHOME_VERSION}``
-# from PyPI inside the Dockerfile. Mirrors the home-assistant/addons
-# reference style (see ``configurator``) — Supervisor passes
-# ``args`` through as build-args so bumping the pin here is enough to
-# repin the install on the next add-on update. ``config.yaml``'s
-# ``version`` field still drives the user-visible add-on version and
-# should be bumped in lock-step.
+# Stable add-on builds on the official Home Assistant Python base
+# image (https://github.com/home-assistant/docker-base) which ships
+# Alpine + s6-overlay v3 + bashio + tempio out of the box, so the
+# Dockerfile only has to install runtime libs + socialhome itself.
 #
-# armv7 is unsupported: several runtime dependencies
-# (``aiolibdatachannel``, ``cryptography``, ``av``) only publish
-# cp314 manylinux wheels for x86_64 / aarch64, and source-building
-# them on armv7 inside a Supervisor host doesn't finish in any
-# reasonable time.
+# ``SOCIALHOME_VERSION`` is forwarded as a build-arg so a CalVer
+# bump here is enough to repin the install on the next Supervisor
+# refresh. Mirrors the home-assistant/addons reference style (see
+# e.g. ``silabs_flasher``).
+#
+# armv7 / armhf / i386 are unsupported: the upstream python-base
+# image only ships ``3.14-alpine3.23`` for ``amd64`` / ``aarch64``
+# (the 32-bit arches are end-of-line at ``3.13-alpine3.22``), and
+# socialhome requires Python 3.14+.
 
 build_from:
-  aarch64: python:3.14-slim
-  amd64: python:3.14-slim
+  aarch64: ghcr.io/home-assistant/aarch64-base-python:3.14-alpine3.23
+  amd64: ghcr.io/home-assistant/amd64-base-python:3.14-alpine3.23
 
 args:
   SOCIALHOME_VERSION: "2026.5.10"
