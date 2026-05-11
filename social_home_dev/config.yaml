@@ -45,4 +45,4 @@ schema:
   # ``Capability.STT`` off so the SPA hides the mic affordance.
   stt_entity_id: str?
 
-image: ghcr.io/social-home-io/ha-app-social-home-dev-{arch}
+image: ghcr.io/social-home-io/ha-app/social_home_dev-{arch}
