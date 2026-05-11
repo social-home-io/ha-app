@@ -88,6 +88,6 @@ jobs:
           args: |
             --${{ matrix.arch }} \
             --target ${{ matrix.addon }} \
-            --image "social-home-io/ha-app-${{ steps.meta.outputs.slug }}-{arch}" \
+            --image "social-home-io/ha-app/${{ steps.meta.outputs.slug }}-{arch}" \
             --version "${{ steps.meta.outputs.version }}" \
             ${{ needs.prepare.outputs.publish == 'true' && '--docker-hub-check' || '--test' }}
