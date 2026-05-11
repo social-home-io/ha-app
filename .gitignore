@@ -5,7 +5,10 @@
 .venv/
 venv/
 
-# IDE
-.vscode/
+# IDE — ignore personal state in .vscode/, but track the shared
+# ``tasks.json`` so the **Start Home Assistant** task is the same
+# for every contributor.
+.vscode/*
+!.vscode/tasks.json
 .idea/
 *.swp
