@@ -29,16 +29,17 @@ jobs:
       - id: matrix
         run: |
           # Pull requests build but do not publish. Tag pushes
-          # publish only the stable add-on (the dev channel is
-          # rebuilt continuously from main pushes).
+          # publish only the stable add-on. Pushes to main publish
+          # both channels so the early-access image picks up the
+          # latest config.yaml CalVer in that folder.
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            echo 'addons=["social_home","social_home_dev"]' >> "$GITHUB_OUTPUT"
+            echo 'addons=["socialhome","socialhome_early"]' >> "$GITHUB_OUTPUT"
             echo 'publish=false' >> "$GITHUB_OUTPUT"
           elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            echo 'addons=["social_home"]' >> "$GITHUB_OUTPUT"
+            echo 'addons=["socialhome"]' >> "$GITHUB_OUTPUT"
             echo 'publish=true' >> "$GITHUB_OUTPUT"
           else
-            echo 'addons=["social_home","social_home_dev"]' >> "$GITHUB_OUTPUT"
+            echo 'addons=["socialhome","socialhome_early"]' >> "$GITHUB_OUTPUT"
             echo 'publish=true' >> "$GITHUB_OUTPUT"
           fi
 
@@ -66,9 +67,7 @@ jobs:
         id: meta
         run: |
           version=$(yq -r '.version' "${{ matrix.addon }}/config.yaml")
-          slug=$(yq -r '.slug' "${{ matrix.addon }}/config.yaml")
           echo "version=${version}" >> "$GITHUB_OUTPUT"
-          echo "slug=${slug}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to ghcr.io
         if: needs.prepare.outputs.publish == 'true'
@@ -85,9 +84,13 @@ jobs:
           # build runs natively (amd64-builder on ubuntu-24.04,
           # aarch64-builder on ubuntu-24.04-arm).
           image: ${{ matrix.arch }}
+          # ``--image`` is intentionally omitted — the builder reads
+          # the registry + image template from ``config.yaml::image``
+          # (split on the last ``/``). Passing ``--image`` without a
+          # matching ``--docker-hub`` overrides only the image half,
+          # leaving the registry empty → leading-slash tag.
           args: |
             --${{ matrix.arch }} \
             --target ${{ matrix.addon }} \
-            --image "social-home-io/ha-app/${{ steps.meta.outputs.slug }}-{arch}" \
             --version "${{ steps.meta.outputs.version }}" \
             ${{ needs.prepare.outputs.publish == 'true' && '--docker-hub-check' || '--test' }}

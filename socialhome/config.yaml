@@ -1,0 +1,112 @@
+---
+name: Social Home
+version: "2026.5.11"
+slug: socialhome
+description: Your private, federated household social network.
+url: https://social-home.io
+arch:
+  - aarch64
+  - amd64
+init: false
+homeassistant: "2026.3"
+startup: services
+panel_icon: mdi:home-account
+panel_title: Social Home
+
+# Ingress proxies the web UI through HA's auth — no extra port to expose.
+# The Supervisor's default ingress port is 8099, which matches the
+# server's ``listen_port = 8099``, so no explicit ``ingress_port:``.
+# ``ingress_stream`` opts the add-on into streamed POST forwarding;
+# without it the Supervisor reads the whole body (up to our
+# 200 MiB media cap) into RAM before forwarding a single byte.
+# ``socialhome.routes.media.MediaUploadView`` uses aiohttp's
+# multipart streaming reader, so chunked-from-the-wire works the
+# same as a fully buffered body — the flag is a pure win for
+# photo / video uploads and a no-op for routes that call
+# ``await request.read()`` anyway (``/api/backup/import``,
+# ``/federation/inbox/...``).
+ingress: true
+ingress_stream: true
+
+# Supervisor + HA-Core access the bootstrap actually needs:
+#
+# * ``hassio_api`` — ``GET /addons/self/info`` (read our own
+#   hostname + ingress port for the discovery payload) and
+#   ``POST /discovery`` (push the discovery message to HA Core).
+#   Both work under the default Supervisor role; no privileged
+#   role required.
+# * ``homeassistant_api`` — the HA WS proxy the adapter uses for
+#   ``config/auth/list`` (resolves the HA owner + builds the user
+#   directory). HA Core gates ``config/auth/list`` on admin, but
+#   the addon's HA proxy identity is admin by virtue of
+#   ``homeassistant_api: true``.
+#
+# Previously we had ``hassio_role: admin`` + ``auth_api: true``
+# for the Supervisor ``/auth/list`` REST endpoint. ``socialhome
+# >= 2026.5.12.2`` reads identity from HA Core's WS directly, so
+# both extra privileges are no longer needed.
+hassio_api: true
+homeassistant_api: true
+
+# Declare the discovery services the add-on pushes. Supervisor
+# rejects ``POST /discovery`` with 403 unless the service name in
+# the body matches an entry here. The Python core's bootstrap and
+# the ha-integration manifest both use ``socialhome`` as the
+# domain / service name, so HA Core routes the discovery push
+# straight to the matching integration's ``async_step_hassio``.
+discovery:
+  - socialhome
+
+# Liveness probe lives in the Dockerfile (``HEALTHCHECK`` against
+# ``/healthz``) — the addon-linter rejects the legacy
+# ``watchdog:`` key.
+
+# Backup hooks — the add-on keeps running through the snapshot
+# (``backup: hot`` is the Supervisor default; no explicit setting).
+# The pre-hook calls the SH server's ``POST /api/backup/pre_backup``
+# which issues ``PRAGMA wal_checkpoint(TRUNCATE)`` so freshly-committed
+# pages in ``socialhome.db-wal`` are folded into ``socialhome.db``
+# before the Supervisor copies ``/data``. Without it the snapshot
+# is internally consistent but can miss the most recent writes.
+# The post-hook is a symmetric ack today — reserved for future
+# quiesce/resume logic on the server.
+backup_pre: /etc/socialhome/backup-pre.sh
+backup_post: /etc/socialhome/backup-post.sh
+
+# Persistent storage — SQLite + media survive add-on updates.
+# ``homeassistant_config`` is mounted so the install-integration
+# oneshot can write the ``socialhome`` custom_component into
+# ``/homeassistant/custom_components/`` on first boot (and on
+# updates), avoiding a HACS dependency on HAOS.
+# Long-form because the addon-linter rejects the short ``data:rw``
+# shorthand; the long form spells out the same thing.
+map:
+  - type: data
+    read_only: false
+  - type: homeassistant_config
+    read_only: false
+
+# Per-arch image published by the builder workflow. The builder
+# splits this on the final ``/`` — ``ghcr.io/social-home-io/ha-app``
+# is the registry, ``socialhome-{arch}`` is the image name (the
+# ``{arch}`` placeholder gets substituted with ``amd64`` / ``aarch64``
+# at build time). Without this key the builder leaves the registry
+# empty and the resulting tag starts with a leading ``/``.
+image: ghcr.io/social-home-io/ha-app/socialhome-{arch}
+
+options:
+  log_level: info
+  ai_task_entity_id: ""
+  stt_entity_id: "stt.home_assistant_cloud"
+
+schema:
+  log_level: list(trace|debug|info|warning|error|fatal)
+  # HA ``ai_task.*`` entity (e.g. ``ai_task.openai``) used by the
+  # calendar photo importer and any future AI-task feature. Empty
+  # leaves the AI surface off instead of failing loudly.
+  ai_task_entity_id: str?
+  # HA ``stt.*`` entity used for in-app voice-to-text. Empty leaves
+  # ``Capability.STT`` off so the SPA hides the mic affordance.
+  stt_entity_id: str?
+
+

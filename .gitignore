@@ -12,3 +12,8 @@ venv/
 !.vscode/tasks.json
 .idea/
 *.swp
+
+# Claude Code runtime state — ``.claude/skills/`` is tracked, everything
+# else under ``.claude/`` (session locks, …) is local-only.
+.claude/*
+!.claude/skills/

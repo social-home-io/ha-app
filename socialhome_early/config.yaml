@@ -1,0 +1,67 @@
+---
+name: Social Home (Early)
+version: "2026.5.11"
+slug: socialhome_early
+description: Early-access channel for Social Home — gets release candidates before they ship to the stable add-on.
+url: https://social-home.io
+arch:
+  - aarch64
+  - amd64
+init: false
+homeassistant: "2026.3"
+startup: services
+panel_icon: mdi:home-account
+panel_title: Social Home (Early)
+
+# Ingress proxies the web UI through HA's auth — no extra port to expose.
+# The Supervisor's default ingress port (8099) matches the server's
+# ``listen_port``, so no explicit ``ingress_port:``.
+# ``ingress_stream`` — see the stable add-on's config for the rationale.
+ingress: true
+ingress_stream: true
+
+# Supervisor + HA-Core access the bootstrap needs — see the
+# stable add-on's config for the rationale.
+hassio_api: true
+homeassistant_api: true
+
+# See the stable add-on's config for the discovery rationale.
+discovery:
+  - socialhome
+
+# Liveness probe lives in the Dockerfile (``HEALTHCHECK`` against
+# ``/healthz``) — the addon-linter rejects the legacy
+# ``watchdog:`` key.
+
+# Backup hooks — see the stable add-on's config for the rationale.
+backup_pre: /etc/socialhome/backup-pre.sh
+backup_post: /etc/socialhome/backup-post.sh
+
+# Persistent storage — separate from the stable add-on so the two
+# can coexist without trampling each other's SQLite.
+# ``homeassistant_config`` is mounted so the install-integration
+# oneshot can drop the ``socialhome`` custom_component into
+# ``/homeassistant/custom_components/`` without a HACS dependency.
+# Long-form because the linter rejects the ``data:rw`` shorthand.
+map:
+  - type: data
+    read_only: false
+  - type: homeassistant_config
+    read_only: false
+
+options:
+  log_level: debug
+  ai_task_entity_id: ""
+  stt_entity_id: "stt.home_assistant_cloud"
+
+schema:
+  log_level: list(trace|debug|info|warning|error|fatal)
+  # HA ``ai_task.*`` entity (e.g. ``ai_task.openai``) used by the
+  # calendar photo importer and any future AI-task feature. Empty
+  # leaves the AI surface off instead of failing loudly.
+  ai_task_entity_id: str?
+  # HA ``stt.*`` entity used for in-app voice-to-text. Empty leaves
+  # ``Capability.STT`` off so the SPA hides the mic affordance.
+  stt_entity_id: str?
+
+image: ghcr.io/social-home-io/ha-app/socialhome_early-{arch}

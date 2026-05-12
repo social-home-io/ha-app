@@ -5,29 +5,33 @@ AI agent instruction file. Read before editing. Canonical spec:
 
 ### Architecture rules
 - Two add-ons share the same `Dockerfile`, `run.sh`, and
-  `rootfs/etc/social_home.toml.gtpl`. Mirror changes across
-  `social_home/` (stable) and `social_home_dev/` (dev) in one
-  commit.
+  `rootfs/etc/socialhome.toml.gtpl`. Mirror changes across
+  `socialhome/` (stable) and `socialhome_early/` (early-access)
+  in one commit.
 - `run.sh` only converts options to TOML via `tempio` and `exec`s
   the Python server. Anything more (token minting, owner
   provisioning, discovery push) belongs in the Python core's
   `HaBootstrap`.
-- Stable image tag = the CalVer release. Dev image tag = `main`.
+- Stable + early image tags = the CalVer in `config.yaml`. During
+  a rollout the early add-on may carry a newer CalVer than stable
+  for the soak window.
 - Never hand-build TOML with shell heredocs — use `tempio`.
 
 ### Versioning
 - CalVer tags without a ``v`` prefix — e.g. ``2026.4.25``.
-- Dev add-on's `version` is ``<stable>-dev`` so it always sorts
-  ahead of stable.
+- Both add-ons use the same CalVer format (no ``-early`` /
+  ``-dev`` suffix). The early channel's lead over stable is
+  expressed by carrying a newer CalVer in its ``config.yaml``
+  during the rollout window.
 
 ### Release workflow
-- Tag the stable add-on (``2026.4.26``) → builds the multi-arch
-  image, pushes to ``ghcr.io/social-home-io/socialhome:2026.4.26``,
-  bumps both ``config.yaml`` versions in a follow-up commit (or
-  prepare them in the PR before tagging).
-- Dev image rebuilds on every push to ``main``.
+- Bump ``socialhome_early/config.yaml`` to the next CalVer, soak
+  the build with the early audience.
+- Once it's clean, bump ``socialhome/config.yaml`` to the same
+  CalVer and tag the repo — that drives the stable build/push to
+  ``ghcr.io/social-home-io/ha-app/social_home-{arch}``.
 
 ### File locations
-- Stable add-on: `social_home/`
-- Dev add-on: `social_home_dev/`
+- Stable add-on: `socialhome/`
+- Early-access add-on: `socialhome_early/`
 - Repo manifest: `repository.yaml`

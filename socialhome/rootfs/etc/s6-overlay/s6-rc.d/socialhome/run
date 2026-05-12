@@ -1,0 +1,27 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# s6-overlay v3 longrun for the Social Home server.
+#
+# ``/data/socialhome.toml`` is rendered by the ``init-config``
+# oneshot before this longrun starts (declared via
+# ``dependencies.d/init-config``). Bootstrap logic (HA owner
+# provisioning, integration token, Supervisor discovery push)
+# lives in the Python core's ``HaBootstrap`` and fires on first
+# start.
+# ==============================================================================
+
+bashio::log.info "Starting Social Home..."
+
+# Wire the rendered TOML in via ``SH_CONFIG`` — the Python core
+# reads its file path from the environment (see
+# ``socialhome.config.Config.from_env``), it does not parse argv.
+#
+# ``SH_MODE=haos`` selects the Supervisor-aware adapter. The TOML
+# also pins this, but we set it here defensively: env wins over
+# TOML, so an operator overriding the file can't accidentally
+# drop us into ``standalone`` and bypass the Supervisor proxy.
+# SUPERVISOR_TOKEN / SUPERVISOR_URL are injected by HA itself.
+export SH_CONFIG=/data/socialhome.toml
+export SH_MODE=haos
+
+exec python3 -m socialhome
