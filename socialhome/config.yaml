@@ -14,8 +14,8 @@ panel_icon: mdi:home-account
 panel_title: Social Home
 
 # Ingress proxies the web UI through HA's auth — no extra port to expose.
-# ``ingress_port`` pins the upstream port the Supervisor proxies to;
-# it matches the server's default ``listen_port = 8099``.
+# The Supervisor's default ingress port is 8099, which matches the
+# server's ``listen_port = 8099``, so no explicit ``ingress_port:``.
 # ``ingress_stream`` opts the add-on into streamed POST forwarding;
 # without it the Supervisor reads the whole body (up to our
 # 200 MiB media cap) into RAM before forwarding a single byte.
@@ -26,7 +26,6 @@ panel_title: Social Home
 # ``await request.read()`` anyway (``/api/backup/import``,
 # ``/federation/inbox/...``).
 ingress: true
-ingress_port: 8099
 ingress_stream: true
 
 # Supervisor + HA-Core access the bootstrap actually needs:
@@ -58,22 +57,19 @@ homeassistant_api: true
 discovery:
   - socialhome
 
-# Liveness probe — Supervisor restarts the add-on when the server
-# stops answering /healthz (defined in ``socialhome.routes.health``,
-# returns 200 with subsystem status when healthy, 503 otherwise).
-watchdog: "http://[HOST]:[PORT:8099]/healthz"
+# Liveness probe lives in the Dockerfile (``HEALTHCHECK`` against
+# ``/healthz``) — the addon-linter rejects the legacy
+# ``watchdog:`` key.
 
 # Backup hooks — the add-on keeps running through the snapshot
-# (``backup: hot`` is the Supervisor default and what we want; no
-# downtime for the operator). The pre-hook calls the SH server's
-# ``POST /api/backup/pre_backup`` which issues
-# ``PRAGMA wal_checkpoint(TRUNCATE)`` so freshly-committed pages
-# in ``socialhome.db-wal`` are folded into ``socialhome.db``
+# (``backup: hot`` is the Supervisor default; no explicit setting).
+# The pre-hook calls the SH server's ``POST /api/backup/pre_backup``
+# which issues ``PRAGMA wal_checkpoint(TRUNCATE)`` so freshly-committed
+# pages in ``socialhome.db-wal`` are folded into ``socialhome.db``
 # before the Supervisor copies ``/data``. Without it the snapshot
 # is internally consistent but can miss the most recent writes.
 # The post-hook is a symmetric ack today — reserved for future
 # quiesce/resume logic on the server.
-backup: hot
 backup_pre: /etc/socialhome/backup-pre.sh
 backup_post: /etc/socialhome/backup-post.sh
 

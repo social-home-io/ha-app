@@ -49,6 +49,10 @@ ADD https://github.com/social-home-io/ha-integration/releases/download/${CUSTOM_
 
 COPY rootfs /
 
+# Liveness probe — see the stable Dockerfile for the rationale.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:8099/healthz > /dev/null || exit 1
+
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION

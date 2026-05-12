@@ -14,11 +14,10 @@ panel_icon: mdi:home-account
 panel_title: Social Home (Early)
 
 # Ingress proxies the web UI through HA's auth — no extra port to expose.
-# ``ingress_port`` pins the upstream port the Supervisor proxies to;
-# it matches the server's default ``listen_port = 8099``.
+# The Supervisor's default ingress port (8099) matches the server's
+# ``listen_port``, so no explicit ``ingress_port:``.
 # ``ingress_stream`` — see the stable add-on's config for the rationale.
 ingress: true
-ingress_port: 8099
 ingress_stream: true
 
 # Supervisor + HA-Core access the bootstrap needs — see the
@@ -30,12 +29,11 @@ homeassistant_api: true
 discovery:
   - socialhome
 
-# Liveness probe — Supervisor restarts the add-on when the server
-# stops answering /healthz (defined in ``socialhome.routes.health``).
-watchdog: "http://[HOST]:[PORT:8099]/healthz"
+# Liveness probe lives in the Dockerfile (``HEALTHCHECK`` against
+# ``/healthz``) — the addon-linter rejects the legacy
+# ``watchdog:`` key.
 
 # Backup hooks — see the stable add-on's config for the rationale.
-backup: hot
 backup_pre: /etc/socialhome/backup-pre.sh
 backup_post: /etc/socialhome/backup-post.sh
 

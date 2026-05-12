@@ -67,6 +67,14 @@ ADD https://github.com/social-home-io/ha-integration/releases/download/${CUSTOM_
 # ``/etc/socialhome.toml.gtpl`` template.
 COPY rootfs /
 
+# Liveness probe — the Supervisor reads Docker's HEALTHCHECK state
+# and restarts the add-on when ``/healthz`` (served by
+# ``socialhome.routes.health``) stops answering. Uses the BusyBox
+# ``wget`` that ships with the Alpine base, so no extra package.
+# ``--start-period`` covers the s6 boot + DB migration window.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:8099/healthz > /dev/null || exit 1
+
 # OCI labels — Supervisor surfaces ``io.hass.*`` in the add-on UI.
 ARG BUILD_ARCH
 ARG BUILD_DATE
