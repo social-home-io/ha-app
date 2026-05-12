@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        addon: [social_home, social_home_dev]
+        addon: [socialhome, socialhome_early]
     steps:
       - uses: actions/checkout@v4
       # Validates ``config.yaml`` schema, ``build.yaml`` arch
@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        addon: [social_home, social_home_dev]
+        addon: [socialhome, socialhome_early]
     steps:
       - uses: actions/checkout@v4
       - uses: hadolint/hadolint-action@v3.1.0

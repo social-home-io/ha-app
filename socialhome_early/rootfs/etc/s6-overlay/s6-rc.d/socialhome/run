@@ -1,0 +1,17 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# s6-overlay v3 longrun for the Social Home server (early-access channel).
+#
+# ``/data/socialhome.toml`` is rendered by the ``init-config``
+# oneshot before this longrun starts (see
+# ``dependencies.d/init-config``).
+# ==============================================================================
+
+bashio::log.info "Starting Social Home..."
+
+# See the stable add-on's run script for the rationale on the
+# SH_CONFIG / SH_MODE env-var wiring.
+export SH_CONFIG=/data/socialhome.toml
+export SH_MODE=haos
+
+exec python3 -m socialhome

@@ -29,16 +29,17 @@ jobs:
       - id: matrix
         run: |
           # Pull requests build but do not publish. Tag pushes
-          # publish only the stable add-on (the dev channel is
-          # rebuilt continuously from main pushes).
+          # publish only the stable add-on. Pushes to main publish
+          # both channels so the early-access image picks up the
+          # latest config.yaml CalVer in that folder.
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            echo 'addons=["social_home","social_home_dev"]' >> "$GITHUB_OUTPUT"
+            echo 'addons=["socialhome","socialhome_early"]' >> "$GITHUB_OUTPUT"
             echo 'publish=false' >> "$GITHUB_OUTPUT"
           elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            echo 'addons=["social_home"]' >> "$GITHUB_OUTPUT"
+            echo 'addons=["socialhome"]' >> "$GITHUB_OUTPUT"
             echo 'publish=true' >> "$GITHUB_OUTPUT"
           else
-            echo 'addons=["social_home","social_home_dev"]' >> "$GITHUB_OUTPUT"
+            echo 'addons=["socialhome","socialhome_early"]' >> "$GITHUB_OUTPUT"
             echo 'publish=true' >> "$GITHUB_OUTPUT"
           fi
 
