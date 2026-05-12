@@ -86,6 +86,14 @@ map:
   - type: homeassistant_config
     read_only: false
 
+# Per-arch image published by the builder workflow. The builder
+# splits this on the final ``/`` — ``ghcr.io/social-home-io/ha-app``
+# is the registry, ``socialhome-{arch}`` is the image name (the
+# ``{arch}`` placeholder gets substituted with ``amd64`` / ``aarch64``
+# at build time). Without this key the builder leaves the registry
+# empty and the resulting tag starts with a leading ``/``.
+image: ghcr.io/social-home-io/ha-app/socialhome-{arch}
+
 options:
   log_level: info
   ai_task_entity_id: ""

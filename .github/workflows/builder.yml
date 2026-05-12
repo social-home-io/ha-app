@@ -67,9 +67,7 @@ jobs:
         id: meta
         run: |
           version=$(yq -r '.version' "${{ matrix.addon }}/config.yaml")
-          slug=$(yq -r '.slug' "${{ matrix.addon }}/config.yaml")
           echo "version=${version}" >> "$GITHUB_OUTPUT"
-          echo "slug=${slug}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to ghcr.io
         if: needs.prepare.outputs.publish == 'true'
@@ -86,9 +84,13 @@ jobs:
           # build runs natively (amd64-builder on ubuntu-24.04,
           # aarch64-builder on ubuntu-24.04-arm).
           image: ${{ matrix.arch }}
+          # ``--image`` is intentionally omitted — the builder reads
+          # the registry + image template from ``config.yaml::image``
+          # (split on the last ``/``). Passing ``--image`` without a
+          # matching ``--docker-hub`` overrides only the image half,
+          # leaving the registry empty → leading-slash tag.
           args: |
             --${{ matrix.arch }} \
             --target ${{ matrix.addon }} \
-            --image "ghcr.io/social-home-io/ha-app/${{ steps.meta.outputs.slug }}-{arch}" \
             --version "${{ steps.meta.outputs.version }}" \
             ${{ needs.prepare.outputs.publish == 'true' && '--docker-hub-check' || '--test' }}
