@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.5.13.2
+
+Bumps the bundled Social Home server from `2026.5.13.2` to `2026.5.13.3`;
+HA integration stays at `2026.5.11.4`. DM chat gets a multi-line
+composer, a pinned bottom layout, and optimistic message sends.
+
 ## 2026.5.13.1
 
 Bumps the bundled Social Home server from `2026.5.13` to `2026.5.13.2`;
