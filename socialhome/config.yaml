@@ -1,6 +1,6 @@
 ---
 name: Social Home
-version: "2026.5.11"
+version: "2026.5.13"
 slug: socialhome
 description: Your private, federated household social network.
 url: https://social-home.io
@@ -11,7 +11,11 @@ init: false
 homeassistant: "2026.3"
 startup: services
 panel_icon: mdi:home-account
-panel_title: Social Home
+panel_title: SocialHome
+# Default ``panel_admin: true`` hides the sidebar entry from
+# non-admin HA users. Social Home is a household-wide app — every
+# HA user is expected to use it — so expose the panel to everyone.
+panel_admin: false
 
 # Ingress proxies the web UI through HA's auth — no extra port to expose.
 # The Supervisor's default ingress port is 8099, which matches the
