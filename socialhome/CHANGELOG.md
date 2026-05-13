@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.5.13.1
+
+Bumps the bundled Social Home server from `2026.5.13` to `2026.5.13.2`;
+HA integration stays at `2026.5.11.4`. Fixes the DM inbox so the first
+chat row no longer overlaps when only a single thread is present.
+
 ## 2026.5.13
 
 Bumps the bundled Social Home server from `2026.5.12.4` to `2026.5.13`;
