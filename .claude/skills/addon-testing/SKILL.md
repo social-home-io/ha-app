@@ -103,13 +103,16 @@ when the published image is unavailable.
 The published image at `ghcr.io/social-home-io/ha-app/socialhome-*`
 is private. To make Supervisor build from the Dockerfile in this
 checkout, remove the `image:` line from `socialhome/config.yaml`
-for the duration of the test, then `ha store reload`. Restore it
-before committing.
+for the duration of the test, then `ha store reload`. Step 9
+(*Cleanup*) restores it — do not commit while the line is missing.
 
 ```sh
 sed -i.bak '/^image:/d' socialhome/config.yaml
 ha store reload
 ```
+
+The `.bak` sidecar is the source of truth for the restore in step 9.
+Don't delete it mid-run.
 
 ### 4 — Install + start
 
@@ -421,3 +424,32 @@ After login, the Social Home panel appears in the sidebar (icon
 Do **not** click through the UI on the user's behalf; the goal of
 this step is for the user to confirm the experience matches what
 they expect on their own network.
+
+### 9 — Cleanup (mandatory, even on failure)
+
+Step 3 stripped the `image:` line from `socialhome/config.yaml` to
+force a local build. Restore it before exiting the skill —
+otherwise the release diff will silently drop the pinned image
+reference. Run this on success, on user abort, and on any failure
+that bailed out of an earlier step:
+
+```sh
+# Restore from the .bak sidecar created in step 3.
+mv socialhome/config.yaml.bak socialhome/config.yaml
+
+# Sanity-check: the image: line is back and the diff against the
+# branch start matches what you expect for the release.
+grep -n '^image:' socialhome/config.yaml
+git diff --stat socialhome/config.yaml
+```
+
+If the `.bak` is missing (e.g. step 3 never ran, or the file was
+moved), recover the line by `git checkout HEAD -- socialhome/config.yaml`
+and re-apply any in-flight release edits — losing the bump is
+better than committing a config that points the supervisor at a
+missing private image.
+
+Other state intentionally left in place: the symlinks under
+`/mnt/supervisor/addons/local/`, the installed addon, the running
+Supervisor — they're devcontainer scratch state, not repo files,
+so the next `addon-testing` run picks up where this one left off.
