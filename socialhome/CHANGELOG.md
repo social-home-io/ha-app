@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.5.13
+
+Bumps the bundled Social Home server from `2026.5.12.4` to `2026.5.13`;
+HA integration stays at `2026.5.11.4`. SPA pictures are now
+click-to-zoom across gallery, moments, feed, and pages.
+
 ## 2026.5.11
 
 Initial release.
