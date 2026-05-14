@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.5.14
+
+Bumps the bundled Social Home server from `2026.5.13.3` to `2026.5.14`;
+HA integration stays at `2026.5.11.4`. Calendar events are now anchored
+to an IANA timezone so they stay correct across DST changes and travel.
+
 ## 2026.5.13.2
 
 Bumps the bundled Social Home server from `2026.5.13.2` to `2026.5.13.3`;

@@ -19,7 +19,7 @@ build_from:
   amd64: ghcr.io/home-assistant/amd64-base-python:3.14-alpine3.23
 
 args:
-  SOCIALHOME_VERSION: "2026.5.13.3"
+  SOCIALHOME_VERSION: "2026.5.14"
   # Pinned ``ha-integration`` release the add-on ships. Bumped
   # alongside ``SOCIALHOME_VERSION`` whenever the two need to move
   # together (manifest contract change, new dependency, …); a pure
