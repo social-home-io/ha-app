@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.5.15
+
+Bumps the bundled Social Home server from `2026.5.14` to `2026.5.15`;
+HA integration stays at `2026.5.11.4`. DM chats gain media attachments
+and hold-to-record voice notes with auto-transcripts, lazy-loaded
+history with a jump-to-bottom anchor, and day separators.
+
 ## 2026.5.14
 
 Bumps the bundled Social Home server from `2026.5.13.3` to `2026.5.14`;

@@ -1,13 +1,14 @@
 ---
 name: new-release
-description: Cut a new CalVer release of the socialhome / socialhome_early add-ons. Branches off `main`, bumps the add-on CalVer and the pinned `SOCIALHOME_VERSION` / `CUSTOM_COMPONENT_VERSION` to whatever is latest upstream, drafts changelog entries on both add-ons, hands off to the user for any extra edits, runs the `addon-testing` skill end-to-end against the build, then opens a PR against `main`. Stops at the PR — tagging is the maintainer's call.
+description: Cut a new CalVer release of the socialhome / socialhome_early add-ons. Branches off `main`, bumps the add-on CalVer and the pinned `SOCIALHOME_VERSION` / `CUSTOM_COMPONENT_VERSION` to whatever is latest upstream, drafts changelog entries on both add-ons, hands off to the user for any extra edits, opens a PR against `main`, then runs the `addon-testing` skill end-to-end against the build. Stops after testing — tagging is the maintainer's call.
 ---
 
 # new-release
 
 End-to-end release workflow for this repo. Pairs with
 `addon-testing` — `new-release` prepares the branch and the diff,
-`addon-testing` validates the build runs cleanly inside the
+opens the PR so CI can run in parallel, then invokes
+`addon-testing` to validate the build runs cleanly inside the
 devcontainer Supervisor.
 
 ## When to use
@@ -156,38 +157,20 @@ Wait for explicit confirmation before continuing. The user
 typically will say *"keep going"* / *"looks good"* — anything
 short of that means pause and apply their edits first.
 
-### 6 — Run `addon-testing`
-
-Invoke the `addon-testing` skill end to end. It builds the
-add-on locally inside the devcontainer Supervisor, installs /
-updates / restarts it, tails the logs, and walks the operator
-through visual verification at `http://<host>:7123/`.
-
-The testing skill modifies `socialhome/config.yaml` mid-run
-(strips the `image:` line to force a local build) and is itself
-responsible for restoring the line in its step 9. When that
-skill returns, sanity-check the restore landed:
-
-```sh
-grep -n '^image:' socialhome/config.yaml
-git diff --stat
-```
-
-`git diff --stat` should show only the intended release-branch
-edits — `socialhome/{config,build}.yaml`, `socialhome/CHANGELOG.md`,
-and their `socialhome_early/` counterparts. Anything else means
-the testing skill's cleanup didn't fully run; re-run it or
-restore from `git` before continuing.
-
-The visual-verification handoff at the end of `addon-testing`
-must complete with a user *"looks good"* before continuing. If
-the test surfaces a regression, fix it on the same branch and
-re-run step 6 — do **not** open the PR while testing is red.
-
-### 7 — Commit
+### 6 — Commit
 
 One commit, both add-ons, release-shaped subject (match the
-`git log` style on `main`):
+`git log` style on `main`). The working tree must be clean of
+`addon-testing` artefacts at this point — testing hasn't run
+yet, so there should be no `socialhome/config.yaml.bak` and no
+stripped `image:` line. Confirm:
+
+```sh
+grep -n '^image:' socialhome/config.yaml   # must print the image: line
+ls socialhome/config.yaml.bak 2>/dev/null  # must print nothing
+```
+
+Then commit:
 
 ```sh
 git add -- \
@@ -207,9 +190,15 @@ EOF
 ```
 
 Stage only the files listed above — `git add -A` will silently
-include any leftover `.bak` from a failed `addon-testing` cleanup.
+include unrelated leftovers.
 
-### 8 — Push and open the PR
+### 7 — Push and open the PR
+
+The PR opens *before* `addon-testing` runs so the HA add-on
+validator (CI) can soak in parallel with the local build. The
+test-plan checkboxes are left **unchecked** on creation —
+`addon-testing` checks them after the user gives *"looks good"*
+in step 8.
 
 ```sh
 git push -u origin release/${CALVER}
@@ -224,11 +213,53 @@ gh pr create --base main --head release/${CALVER} \
 - <other release-branch changes, if any>
 
 ## Test plan
-- [x] \`/addon-testing\` — local build, install/update, healthy startup logs, \`/healthz\` ok, discovery push observed.
-- [x] Visual verification at \`http://<host>:7123/\` — SocialHome panel loads through ingress; Devices & services → discovery approves cleanly.
+- [ ] \`/addon-testing\` — local build, install/update, healthy startup logs, \`/healthz\` ok, discovery push observed.
+- [ ] Visual verification at \`http://<host>:7123/\` — SocialHome panel loads through ingress; Devices & services → discovery approves cleanly.
 EOF
 )"
 ```
+
+Capture and hold on to the PR URL — you'll surface it to the
+user at the end of step 8 and use it to flip the test-plan
+checkboxes once testing is green.
+
+### 8 — Run `addon-testing`
+
+Invoke the `addon-testing` skill end to end. It builds the
+add-on locally inside the devcontainer Supervisor, installs /
+updates / restarts it, tails the logs, and walks the operator
+through visual verification at `http://<host>:7123/`.
+
+The testing skill modifies `socialhome/config.yaml` mid-run
+(strips the `image:` line to force a local build) and is itself
+responsible for restoring the line in its step 9. Those mid-run
+edits sit **on top of** the already-pushed release commit; they
+should never reach `git commit`. When the skill returns,
+sanity-check the working tree is clean:
+
+```sh
+grep -n '^image:' socialhome/config.yaml
+git status --short
+```
+
+`git status --short` should be empty — the release commit is
+already pushed, and `addon-testing`'s cleanup undid everything
+it touched. Any lingering modification means the testing skill's
+cleanup didn't fully run; restore from `git checkout` before
+moving on.
+
+The visual-verification handoff at the end of `addon-testing`
+must complete with a user *"looks good"*. Once it does, flip the
+test-plan checkboxes on the open PR:
+
+```sh
+gh pr edit <pr-number> --body "$(gh pr view <pr-number> --json body --jq .body | sed 's/- \[ \]/- [x]/g')"
+```
+
+If the test surfaces a regression, fix it on the same branch and
+push a follow-up commit — the PR is already open and will pick
+up the new commit automatically. Re-run `addon-testing` until
+green, then flip the checkboxes.
 
 Return the PR URL to the user.
 
@@ -238,8 +269,10 @@ Return the PR URL to the user.
   file in `socialhome/` mirrors into `socialhome_early/` — only
   `config.yaml` differs (version, slug, image tag). See
   `CLAUDE.md` hard rules.
+- The PR is opened **before** `addon-testing` so the HA add-on
+  validator runs in parallel with the local build. Failures are
+  fixed with follow-up commits on the same branch; the test-plan
+  checkboxes only flip to `[x]` once testing is green.
 - The git **tag** that triggers the release-image build is cut
   separately by the maintainer after this PR merges. This skill
-  stops at the PR.
-- If `addon-testing` fails, fix the underlying issue with a
-  follow-up commit on the same branch and re-run step 6.
+  stops once `addon-testing` returns green.
