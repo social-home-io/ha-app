@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.5.16
+
+Bumps the bundled Social Home server from `2026.5.15` to `2026.5.16`;
+HA integration stays at `2026.5.11.4`. DM bubbles gain a long-press
+action menu with swipe-to-reply and per-message reactions, and the
+SPA now prompts the user to reload when a new deploy is detected.
+
 ## 2026.5.15
 
 Bumps the bundled Social Home server from `2026.5.14` to `2026.5.15`;
