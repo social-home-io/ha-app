@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.17
+
+Bumps the bundled Social Home server from `2026.5.16` to
+[`2026.5.17`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.17);
+HA integration stays at `2026.5.11.4`. Shopping list now lets you
+drag items between stores with a one-tap store picker, and DM
+media, image processing, and schedulers no longer block the event
+loop on large attachments.
+
 ## 2026.5.16
 
 Bumps the bundled Social Home server from `2026.5.15` to `2026.5.16`;
