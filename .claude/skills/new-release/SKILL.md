@@ -74,9 +74,15 @@ newer than the current pin. A pure add-on-packaging release can
 ship without either bump.
 
 ```sh
+# --exclude-drafts/--exclude-pre-releases keep us off in-flight
+# releases — without them, a draft cut by the upstream release
+# workflow (e.g. a 2026.5.17.1 sitting unpublished) surfaces as
+# "latest" and silently re-pins us to a tag that doesn't exist.
 LATEST_SH=$(gh release list --repo social-home-io/socialhome \
+              --exclude-drafts --exclude-pre-releases \
               --limit 1 --json tagName --jq '.[0].tagName')
 LATEST_INT=$(gh release list --repo social-home-io/ha-integration \
+              --exclude-drafts --exclude-pre-releases \
               --limit 1 --json tagName --jq '.[0].tagName')
 
 CUR_SH=$(grep -oP '(?<=SOCIALHOME_VERSION: ")[^"]+' socialhome/build.yaml)
