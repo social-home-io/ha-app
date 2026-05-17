@@ -1,6 +1,6 @@
 ---
 name: new-release
-description: Cut a new CalVer release of the socialhome / socialhome_early add-ons. Branches off `main`, bumps the add-on CalVer and the pinned `SOCIALHOME_VERSION` / `CUSTOM_COMPONENT_VERSION` to whatever is latest upstream, drafts changelog entries on both add-ons, hands off to the user for any extra edits, opens a PR against `main`, then runs the `addon-testing` skill end-to-end against the build. Stops after testing — tagging is the maintainer's call.
+description: Cut a new CalVer release of the socialhome / socialhome_early add-ons. Branches off `main`, bumps the add-on CalVer and the pinned `SOCIALHOME_VERSION` / `CUSTOM_COMPONENT_VERSION` to whatever is latest upstream, drafts changelog entries on both add-ons (linking the upstream release page when a pin moves), hands off to the user for any extra edits, opens a PR against `main`, runs the `addon-testing` skill end-to-end against the build, then waits for the user to merge the PR and tidies up the local branch. Stops after cleanup — tagging is the maintainer's call.
 ---
 
 # new-release
@@ -107,41 +107,89 @@ format on both add-ons — terse paragraph, no bullet lists.
 
 - Stable (`socialhome/CHANGELOG.md`): single paragraph stating
   the version-pin moves + one short line on the user-visible
-  highlight from the upstream release notes.
+  highlight from the upstream release notes. **Link the *new*
+  version (the bumped target) to its upstream GitHub release page
+  whenever a pin moves.** If a pin doesn't move, leave that
+  version as plain backticks — no link.
 - Early (`socialhome_early/CHANGELOG.md`): one paragraph noting
   it mirrors the stable add-on and restating the version-pin
-  moves; refer to the stable changelog for the feature summary.
+  moves with the same release-page links; refer to the stable
+  changelog for the full feature summary.
 
-Skeleton — stable:
+Release-page URL template (use these verbatim — every link points
+at `releases/tag/<version>`, never `releases/<version>` or the
+`/latest` redirect):
+
+```
+https://github.com/social-home-io/socialhome/releases/tag/<NEW_SH>
+https://github.com/social-home-io/ha-integration/releases/tag/<NEW_INT>
+```
+
+Skeleton — stable (both pins moved):
 
 ```markdown
 ## <CalVer>
 
-Bumps the bundled Social Home server from `<OLD_SH>` to `<NEW_SH>`;
-HA integration <stays at `<CUR_INT>` | bumps to `<NEW_INT>`>.
+Bumps the bundled Social Home server from `<OLD_SH>` to
+[`<NEW_SH>`](https://github.com/social-home-io/socialhome/releases/tag/<NEW_SH>);
+HA integration moves from `<OLD_INT>` to
+[`<NEW_INT>`](https://github.com/social-home-io/ha-integration/releases/tag/<NEW_INT>).
 <one short line summarising the user-visible change>.
 ```
 
-Skeleton — early:
+Skeleton — stable (only SH moved, HA integration unchanged — the
+common case):
+
+```markdown
+## <CalVer>
+
+Bumps the bundled Social Home server from `<OLD_SH>` to
+[`<NEW_SH>`](https://github.com/social-home-io/socialhome/releases/tag/<NEW_SH>);
+HA integration stays at `<CUR_INT>`. <one short line summarising
+the user-visible change>.
+```
+
+Skeleton — early (mirror the stable links so each early entry is
+self-contained — the reader shouldn't have to flip files to find
+the upstream release notes):
 
 ```markdown
 ## <CalVer>
 
 Mirrors stable `socialhome` <CalVer> — see its changelog for the
 feature summary. Bumps the bundled Social Home server from
-`<OLD_SH>` to `<NEW_SH>`; HA integration <stays at `<CUR_INT>` |
-bumps to `<NEW_INT>`>.
+`<OLD_SH>` to
+[`<NEW_SH>`](https://github.com/social-home-io/socialhome/releases/tag/<NEW_SH>);
+HA integration <stays at `<CUR_INT>` | moves to
+[`<NEW_INT>`](https://github.com/social-home-io/ha-integration/releases/tag/<NEW_INT>)>.
 ```
 
-Pull the highlight line from the upstream release notes:
+Pull the upstream summary from the release notes and condense it
+to **one sentence** (no bullet lists, no more than ~30 words). Use
+the upstream wording as a starting point but trim it to a single
+user-visible takeaway — don't paste the entire release body. The
+goal is a one-line "here's what changed" that fits the existing
+changelog rhythm; readers click through the version link if they
+want the full notes.
 
 ```sh
 gh release view ${LATEST_SH} --repo social-home-io/socialhome
+# …and, if the integration bumped:
+gh release view ${LATEST_INT} --repo social-home-io/ha-integration
 ```
+
+If both upstream repos bumped, lead the summary with the
+user-visible SH highlight (the SH server is what the end user
+interacts with). Only mention the integration explicitly if its
+release notes contain a behaviour-changing fix worth surfacing
+(e.g. *"…and the integration now restores config-entry options on
+reload"*) — a routine version-pin bump is already covered by the
+linked version string.
 
 If neither pinned version changed and this is a pure-packaging
 release, write a one-line entry describing what the add-on itself
-changed (e.g. *"Adds non-admin panel visibility"*).
+changed (e.g. *"Adds non-admin panel visibility"*) and omit the
+release-page links entirely — there's nothing upstream to link to.
 
 ### 5 — Hand off to the user
 
@@ -263,6 +311,61 @@ green, then flip the checkboxes.
 
 Return the PR URL to the user.
 
+### 9 — Wait for merge, then cleanup
+
+The PR is the maintainer's call to merge — don't merge it for
+them. Surface the PR URL again and **stop until the user says the
+PR is merged** ("merged", "go ahead and tidy up", a fresh `gh pr
+view` showing `MERGED`, etc.). A "looks good" alone is not enough
+— it confirms the *review*, not the merge.
+
+Once the user confirms the merge, optionally verify with `gh`
+before touching local state — cheap insurance against deleting a
+still-open branch:
+
+```sh
+gh pr view <pr-number> --json state,mergedAt --jq \
+  '"state=\(.state) merged_at=\(.mergedAt // "—")"'
+```
+
+`state=MERGED` and a non-empty `merged_at` confirm the PR really
+did merge. If it reports `OPEN` or `CLOSED` (without `MERGED`),
+stop and re-ask the user — don't proceed to the destructive
+branch delete.
+
+Then tidy up the local repo state. Run all of these — they're the
+mirror of step 1 (cutting the branch) and leave the working tree
+back where the next `new-release` invocation expects it:
+
+```sh
+git checkout main
+git fetch origin --prune
+git pull --ff-only origin main           # picks up the squash-merge commit on main
+git branch -d release/${CALVER}          # -d, not -D — refuses if not merged into main
+```
+
+If `git branch -d` refuses with *"not fully merged"*, the squash
+merge produced a different SHA than the branch tip (the normal
+case for GitHub squash merges). Verify the PR really merged via
+`gh pr view <pr-number> --json state`, then re-run with `-D` only
+after that check passes — never reach for `-D` blindly.
+
+If `git push origin --delete release/${CALVER}` is needed because
+GitHub didn't auto-delete the remote branch on merge (repo
+setting toggleable under *Settings → General → Pull Requests*),
+run it; otherwise GitHub already cleaned up the remote.
+
+**Devcontainer / Supervisor state is intentionally left in
+place** — the `addon-testing` skill is explicit about this in its
+step 9. The installed addon, the symlinks under
+`/mnt/supervisor/addons/local/`, and the running Supervisor are
+scratch state that the next release picks up from; don't
+uninstall the addon, don't tear down `supervisor_run`, and don't
+delete the symlinks. The cleanup here is repo-only.
+
+That ends the skill — tagging the release (which is what triggers
+the image-build workflow) stays with the maintainer.
+
 ## Notes
 
 - **Two add-ons, one source of truth.** Every edit to a shared
@@ -275,4 +378,9 @@ Return the PR URL to the user.
   checkboxes only flip to `[x]` once testing is green.
 - The git **tag** that triggers the release-image build is cut
   separately by the maintainer after this PR merges. This skill
-  stops once `addon-testing` returns green.
+  stops once step 9's local-branch cleanup is done; tagging is
+  out of scope.
+- The cleanup in step 9 is **repo state only**. Devcontainer /
+  Supervisor scratch state (installed add-on, symlinks, running
+  `supervisor_run`) is intentionally preserved so the next
+  release picks up from a warm Supervisor.
