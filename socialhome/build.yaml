@@ -25,7 +25,7 @@ args:
   # together (manifest contract change, new dependency, …); a pure
   # bug-fix on the integration can bump this alone. The Dockerfile
   # fetches the matching ``socialhome.zip`` at image-build time.
-  CUSTOM_COMPONENT_VERSION: "2026.5.11.4"
+  CUSTOM_COMPONENT_VERSION: "2026.5.18"
 
 labels:
   org.opencontainers.image.title: Social Home

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026.5.18.3
+
+Social Home server stays at `2026.5.18.2`; HA integration moves
+from `2026.5.11.4` to
+[`2026.5.18`](https://github.com/social-home-io/ha-integration/releases/tag/2026.5.18).
+The integration's federation inbox proxy now forwards the
+add-on's `Content-Type` via headers instead of `content_type=`,
+so remote peers see the add-on's real status code and HAOS
+federation no longer loops on 500s — completing the
+HAOS↔HAOS pairing path started in `2026.5.18.2`.
+
 ## 2026.5.18.2
 
 Bumps the bundled Social Home server from `2026.5.18.1` to
