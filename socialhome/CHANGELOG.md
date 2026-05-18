@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.18.1
+
+Bumps the bundled Social Home server from `2026.5.18` to
+[`2026.5.18.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.18.1);
+HA integration stays at `2026.5.11.4`. Fixes the HA/HAOS pairing
+QR to append `/api/socialhome/inbox` to the pushed base URL, and
+restores the unusable +New store… input in the shopping store
+picker on desktop.
+
 ## 2026.5.18
 
 Bumps the bundled Social Home server from `2026.5.17` to
