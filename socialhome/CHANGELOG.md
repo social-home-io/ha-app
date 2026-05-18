@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.18.2
+
+Bumps the bundled Social Home server from `2026.5.18.1` to
+[`2026.5.18.2`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.18.2);
+HA integration stays at `2026.5.11.4`. Routes the pairing
+peer-accept/confirm step through the federation inbox URL so the
+handshake completes under HAOS, and auto-prunes expired pending
+handshakes plus orphaned `PENDING` instances.
+
 ## 2026.5.18.1
 
 Bumps the bundled Social Home server from `2026.5.18` to
