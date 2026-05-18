@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.18
+
+Bumps the bundled Social Home server from `2026.5.17` to
+[`2026.5.18`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.18);
+HA integration stays at `2026.5.11.4`. Tasks now group by status
+with colored sections and drag-and-drop reordering, and pairing
+falls back to a `socialhome://` copy/paste link when scanning a QR
+isn't an option.
+
 ## 2026.5.17
 
 Bumps the bundled Social Home server from `2026.5.16` to
