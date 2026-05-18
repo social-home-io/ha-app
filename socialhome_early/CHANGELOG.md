@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.5.18.3
+
+Mirrors stable `socialhome` 2026.5.18.3 — see its changelog for
+the feature summary. Social Home server stays at `2026.5.18.2`;
+HA integration moves from `2026.5.11.4` to
+[`2026.5.18`](https://github.com/social-home-io/ha-integration/releases/tag/2026.5.18).
+
 ## 2026.5.18.2
 
 Mirrors stable `socialhome` 2026.5.18.2 — see its changelog for
