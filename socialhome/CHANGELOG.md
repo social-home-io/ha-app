@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.19
+
+Bumps the bundled Social Home server from `2026.5.18.2` to
+[`2026.5.19.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.19.1);
+HA integration stays at `2026.5.18`. Adds cross-household polish
+— local aliases for paired peers, cross-house 1:1 DMs, transport
+indicators (⚡ direct / ☁ fallback), a Connections → Map tab,
+and a per-pair share-home toggle in the pairing wizard.
+
 ## 2026.5.18.3
 
 Social Home server stays at `2026.5.18.2`; HA integration moves
