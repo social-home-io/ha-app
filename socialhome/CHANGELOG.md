@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.20
+
+Bumps the bundled Social Home server from `2026.5.19.1` to
+[`2026.5.20`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.20);
+HA integration stays at `2026.5.18`. Adds online/idle/offline
+indicators for remote friends and unifies household + user
+preferences in one table; fixes the FederationMap floating over
+the sidebar plus several pairing / WebRTC reliability bugs.
+
 ## 2026.5.19
 
 Bumps the bundled Social Home server from `2026.5.18.2` to
