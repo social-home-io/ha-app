@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.5.21.1
+
+Bumps the bundled Social Home server from `2026.5.21` to
+[`2026.5.21.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.21.1);
+HA integration stays at `2026.5.18`. Adds cross-household space
+invites (peer-member picker, invite codes, ingress-aware links,
+QR), per-space admin gates for pages / calendar / tasks /
+stickies / gallery, a per-space share-my-location toggle, and
+WebRTC perfect-negotiation glare resolution.
+
 ## 2026.5.21
 
 Bumps the bundled Social Home server from `2026.5.20` to
