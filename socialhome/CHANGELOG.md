@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.21.2
+
+Bumps the bundled Social Home server from `2026.5.21.1` to
+[`2026.5.21.2`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.21.2);
+HA integration stays at `2026.5.18`. Adds personal aliases for
+friends, a header-button "Join with code" dialog, and a
+mobile-friendly space tab strip overflow; polishes the Zones map
+(z-index, legend, tap popup, ghost circles).
+
 ## 2026.5.21.1
 
 Bumps the bundled Social Home server from `2026.5.21` to
