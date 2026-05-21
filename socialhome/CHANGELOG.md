@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.21
+
+Bumps the bundled Social Home server from `2026.5.20` to
+[`2026.5.21`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.21);
+HA integration stays at `2026.5.18`. Adds a desktop reaction
+button on DMs and `@` store autocomplete in shopping; isolates
+the LocationMap stacking context so the sidebar stays on top;
+quiets false-positive DM gap warnings.
+
 ## 2026.5.20
 
 Bumps the bundled Social Home server from `2026.5.19.1` to
