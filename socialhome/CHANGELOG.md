@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.5.22
+
+Bumps the bundled Social Home server from `2026.5.21.2` to
+[`2026.5.22.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.22.1);
+HA integration stays at `2026.5.18`. Adds federation mesh
+routing with E2E-encrypted `SPACE_ROUTED` envelopes and
+cross-instance space-invite redemption; restores the highlights
+public viewer; fixes the RTC perfect-negotiation IntEnum
+mismatch that broke handshakes.
+
 ## 2026.5.21.2
 
 Bumps the bundled Social Home server from `2026.5.21.1` to
