@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026.5.23
+
+Bumps the bundled Social Home server from `2026.5.22.2` to
+[`2026.5.23`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.23);
+HA integration moves from `2026.5.18` to
+[`2026.5.23`](https://github.com/social-home-io/ha-integration/releases/tag/2026.5.23).
+Cross-household spaces now work end-to-end — Safari Accept,
+member roster, content key on accept, federated post lifecycle,
+and member-kick epoch rotation; the integration drops the
+redundant ICE-server push since the backend reads HA Core's
+provider directly.
+
 ## 2026.5.22.1
 
 Bumps the bundled Social Home server from `2026.5.22.1` to

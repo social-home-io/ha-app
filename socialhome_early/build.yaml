@@ -11,9 +11,9 @@ build_from:
   amd64: ghcr.io/home-assistant/amd64-base-python:3.14-alpine3.23
 
 args:
-  SOCIALHOME_VERSION: "2026.5.22.2"
+  SOCIALHOME_VERSION: "2026.5.23"
   # See the stable ``build.yaml`` for the bump-cadence rationale.
-  CUSTOM_COMPONENT_VERSION: "2026.5.18"
+  CUSTOM_COMPONENT_VERSION: "2026.5.23"
 
 labels:
   org.opencontainers.image.title: Social Home (Early)
