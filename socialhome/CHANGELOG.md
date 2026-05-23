@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.5.23.2
+
+Bumps the bundled Social Home server from `2026.5.23.1` to
+[`2026.5.23.2`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.23.2);
+HA integration stays at `2026.5.23`. Extends cross-household
+federation to virtually every space surface — pages, bazaar
+listings and bids, stickies, tasks, zones, polls, schedules,
+location updates, and member avatars; fixes a duplicate-comment
+outbound bug.
+
 ## 2026.5.23.1
 
 Bumps the bundled Social Home server from `2026.5.23` to
