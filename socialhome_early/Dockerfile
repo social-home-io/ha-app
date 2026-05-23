@@ -33,7 +33,8 @@ FROM ${BUILD_FROM}
 RUN apk add --no-cache \
         ffmpeg \
         libjpeg-turbo \
-        libwebp
+        libwebp \
+        libheif
 
 ARG SOCIALHOME_VERSION
 COPY --from=builder /wheels /tmp/wheels
