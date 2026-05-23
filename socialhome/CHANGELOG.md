@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.5.23.1
+
+Bumps the bundled Social Home server from `2026.5.23` to
+[`2026.5.23.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.23.1);
+HA integration stays at `2026.5.23`. Federates picture / video /
+gallery / listing bytes to remote members (not just metadata),
+fixes HEIC uploads from the HA Android Companion, and shows
+remote members on the space map; addon image adds `libheif` for
+the HEIC decode path.
+
 ## 2026.5.23
 
 Bumps the bundled Social Home server from `2026.5.22.2` to
