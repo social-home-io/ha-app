@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.5.24.3
+
+Bumps the bundled Social Home server from `2026.5.24.2` to
+[`2026.5.24.3`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.24.3);
+HA integration stays at `2026.5.23`. Admin-initiated "add
+member" now requires the invitee's consent (no silent adds), and
+the space member list falls back to the household avatar when a
+per-user avatar isn't set.
+
 ## 2026.5.24.2
 
 Bumps the bundled Social Home server from `2026.5.24.1` to
