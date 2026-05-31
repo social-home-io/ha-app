@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.5.31
+
+Bumps the bundled Social Home server from `2026.5.24.3` to
+[`2026.5.31`](https://github.com/social-home-io/socialhome/releases/tag/2026.5.31);
+HA integration stays at `2026.5.23`. Adds a soft, reversible
+space Archive (federated read-only) and shifts DM/space media
+over a dedicated binary DataChannel for faster transfers.
+
 ## 2026.5.24.3
 
 Bumps the bundled Social Home server from `2026.5.24.2` to
