@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.1
+
+Bumps the bundled Social Home server from `2026.5.31` to
+[`2026.6.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.1);
+HA integration stays at `2026.5.23`. Adds space branding (cover
+header, uploadable icon, theme — federated to peers), multi-admin
+quorum for dissolving and publishing spaces, and per-space
+toggles for which post types appear in the feed.
+
 ## 2026.5.31
 
 Bumps the bundled Social Home server from `2026.5.24.3` to
