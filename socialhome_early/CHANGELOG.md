@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.6.3
+
+Mirrors stable `socialhome` 2026.6.3 — see its changelog for the
+feature summary. Bumps the bundled Social Home server from
+`2026.6.1` to
+[`2026.6.3`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.3);
+HA integration stays at `2026.5.23`.
+
 ## 2026.6.1
 
 Mirrors stable `socialhome` 2026.6.1 — see its changelog for the
