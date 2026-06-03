@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.3.2
+
+Bumps the bundled Social Home server from `2026.6.3.1` to
+[`2026.6.3.2`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.3.2);
+HA integration stays at `2026.5.23`. Adds age-gate /
+child-protection enforcement across apps and spaces (federated to
+member households) and ships person-to-person Chess with
+contacts, challenge notifications, and presence.
+
 ## 2026.6.3.1
 
 Bumps the bundled Social Home server from `2026.6.3` to
