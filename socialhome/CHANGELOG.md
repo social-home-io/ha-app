@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.6.3.1
+
+Bumps the bundled Social Home server from `2026.6.3` to
+[`2026.6.3.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.3.1);
+HA integration stays at `2026.5.23`. Adds Social Home Apps
+update check + apply, and installs app bundles into a dedicated
+`<data_dir>/apps` directory.
+
 ## 2026.6.3
 
 Bumps the bundled Social Home server from `2026.6.1` to
