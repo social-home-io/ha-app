@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.3
+
+Bumps the bundled Social Home server from `2026.6.1` to
+[`2026.6.3`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.3);
+HA integration stays at `2026.5.23`. Introduces Social Home Apps
+(sandboxed runtime, per-user storage, federated app-to-app
+messaging) and adds GFS-relay fallback for highlights plus a
+shareable public moments index.
+
 ## 2026.6.1
 
 Bumps the bundled Social Home server from `2026.5.31` to
