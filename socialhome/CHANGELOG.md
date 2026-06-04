@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.4
+
+Bumps the bundled Social Home server from `2026.6.3.2` to
+[`2026.6.4`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.4);
+HA integration stays at `2026.5.23`. Polishes the Apps dashboard
+(tabs + admin menu), refines the per-app age gate (DOB autofill,
+hidden when child protection is off), and adds map-located
+Public space creation.
+
 ## 2026.6.3.2
 
 Bumps the bundled Social Home server from `2026.6.3.1` to
