@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.4.1
+
+Bumps the bundled Social Home server from `2026.6.4` to
+[`2026.6.4.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.4.1);
+HA integration stays at `2026.5.23`. Surfaces federation
+peer-protocol health to admins (lagging peers, stale member
+households), adds active resync, and replays app invites that
+arrived while the app was closed.
+
 ## 2026.6.4
 
 Bumps the bundled Social Home server from `2026.6.3.2` to
