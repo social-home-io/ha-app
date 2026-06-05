@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.5.2
+
+Bumps the bundled Social Home server from `2026.6.4.2` to
+[`2026.6.5.2`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.5.2);
+HA integration stays at `2026.5.23`. Fixes the SPA freeze behind
+HA ingress (vite ^7), fixes a tab freeze when navigating to a
+not-yet-loaded page, and patches toggles + loading states that
+silently reset themselves.
+
 ## 2026.6.4.2
 
 Bumps the bundled Social Home server from `2026.6.4.1` to
