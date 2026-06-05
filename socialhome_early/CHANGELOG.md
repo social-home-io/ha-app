@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026.6.5.1
+
+Early-channel soak of upstream `socialhome`
+[`2026.6.5.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.5.1)
+ahead of the stable add-on (which stays on `2026.6.4.2`). Bumps
+the bundled Social Home server from `2026.6.4.2` to `2026.6.5.1`;
+HA integration stays at `2026.5.23`. Pins vite ^7 to fix an SPA
+freeze behind HA ingress (vite 8 prod build infinite-loops); also
+includes 2026.6.5's paired-household protocol-version display and
+Apps notifications-poll interval leak fix.
+
 ## 2026.6.4.2
 
 Mirrors stable `socialhome` 2026.6.4.2 — see its changelog for
