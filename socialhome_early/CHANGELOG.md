@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.6.5
+
+Early-channel soak of upstream `socialhome`
+[`2026.6.5`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.5)
+ahead of the stable add-on (which stays on `2026.6.4.2`). Bumps
+the bundled Social Home server from `2026.6.4.2` to `2026.6.5`;
+HA integration stays at `2026.5.23`. Shows a paired household's
+protocol version in the manage dialog and fixes a
+notifications-poll interval leak that ran on every Apps render.
+
 ## 2026.6.4.2
 
 Mirrors stable `socialhome` 2026.6.4.2 — see its changelog for
