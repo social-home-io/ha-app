@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.6.1
+
+Bumps the bundled Social Home server from `2026.6.6` to
+[`2026.6.6.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.6.1);
+HA integration stays at `2026.5.23`. Fixes HA mobile_app push
+delivery and the connect-to-GFS flow under ingress, restores
+publishing a space to a global server, and adds shared
+household-event editing across members.
+
 ## 2026.6.6
 
 Bumps the bundled Social Home server from `2026.6.5.2` to
