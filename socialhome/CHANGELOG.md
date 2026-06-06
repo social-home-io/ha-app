@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.6
+
+Bumps the bundled Social Home server from `2026.6.5.2` to
+[`2026.6.6`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.6);
+HA integration stays at `2026.5.23`. Adds a hooks +
+signal-in-render lint pass (and ships the bug fixes it found),
+and re-adopts vite 8 now that the boot-loop fix from `2026.6.5.2`
+makes it safe.
+
 ## 2026.6.5.2
 
 Bumps the bundled Social Home server from `2026.6.4.2` to
