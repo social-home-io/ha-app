@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.6.8
+
+Bumps the bundled Social Home server from `2026.6.6.1` to
+[`2026.6.8`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.8);
+HA integration stays at `2026.5.23`. Recovers federation events
+lost to peers offline more than 5 minutes (re-sign on
+redelivery), keeps a read-only archive when a space is
+dissolved, and reconciles stale spaces on reconnect instead of
+leaving orphaned stubs.
+
 ## 2026.6.6.1
 
 Bumps the bundled Social Home server from `2026.6.6` to
