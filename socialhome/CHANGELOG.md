@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.8.1
+
+Bumps the bundled Social Home server from `2026.6.8` to
+[`2026.6.8.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.8.1);
+HA integration stays at `2026.5.23`. Fixes space-browser remote
+join/subscribe across federation + GFS, shows real storage usage
+(was always 0 B), and bounds several previously-unbounded tables
+(federation outbox, auth audit, notifications retention).
+
 ## 2026.6.8
 
 Bumps the bundled Social Home server from `2026.6.6.1` to
