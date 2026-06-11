@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.11.1
+
+Bumps the bundled Social Home server from `2026.6.11` to
+[`2026.6.11.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.11.1);
+HA integration stays at `2026.5.23`. Adds a four-tier
+space-create dialog (optional public location + discovery
+categories) and a GFS cluster overview showing nodes, status,
+and connected clients.
+
 ## 2026.6.11
 
 Bumps the bundled Social Home server from `2026.6.8.1` to
