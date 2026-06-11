@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.6.11
+
+Bumps the bundled Social Home server from `2026.6.8.1` to
+[`2026.6.11`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.11);
+HA integration stays at `2026.5.23`. Spaces keep running while
+the owner is offline — delegated admins can invite, moderate
+(forward-secret rekey), and edit config, and members' public
+posts still reach subscribers; also hardens the federation /
+GFS relay path against spoofing and MITM.
+
 ## 2026.6.8.1
 
 Bumps the bundled Social Home server from `2026.6.8` to
