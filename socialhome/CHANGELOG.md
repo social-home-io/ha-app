@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.6.12
+
+Bumps the bundled Social Home server from `2026.6.11.1` to
+[`2026.6.12`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.12);
+HA integration stays at `2026.5.23`. Fixes GFS reconnect status
+(home showed `connected` while the GFS saw no client) and a
+missing vite chunk that left GFS admin / public pages blank.
+
 ## 2026.6.11.1
 
 Bumps the bundled Social Home server from `2026.6.11` to
