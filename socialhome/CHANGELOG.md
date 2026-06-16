@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.6.16
+
+Bumps the bundled Social Home server from `2026.6.12` to
+[`2026.6.16`](https://github.com/social-home-io/socialhome/releases/tag/2026.6.16);
+HA integration stays at `2026.5.23`. Adds Recovery Kits (restore
+household identity on fresh hardware) and rebuilds user identity
+around UUIDs with a separate `@handle`, letting people change
+households without losing their social graph.
+
 ## 2026.6.12
 
 Bumps the bundled Social Home server from `2026.6.11.1` to
