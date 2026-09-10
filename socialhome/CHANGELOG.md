@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.9.10
+
+Bumps the bundled Social Home server from `2026.6.16` to
+[`2026.9.10`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.10);
+HA integration stays at `2026.5.23`. Admins can set the external
+URL from the Federation page; also fixes mesh space-sync delivery,
+DM threads blanking on stale replies, and multi-day calendar
+events only showing on their first day.
+
 ## 2026.6.16
 
 Bumps the bundled Social Home server from `2026.6.12` to
