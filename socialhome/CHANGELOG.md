@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.9.11
+
+Bumps the bundled Social Home server from `2026.9.10` to
+[`2026.9.11`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.11);
+HA integration moves from `2026.5.23` to
+[`2026.9.11`](https://github.com/social-home-io/ha-integration/releases/tag/2026.9.11).
+Peers now show when they were last reachable and admins can export
+diagnostics; the integration keeps the federation inbox answering
+even when add-on setup fails, so peers stop giving up on delivery.
+
 ## 2026.9.10
 
 Bumps the bundled Social Home server from `2026.6.16` to
