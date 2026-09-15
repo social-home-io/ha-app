@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.9.15
+
+Bumps the bundled Social Home server from `2026.9.11` to
+[`2026.9.15`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.15);
+HA integration stays at `2026.9.11`. Maps load again, adding a
+household member to an existing event actually adds them, and
+duplicate shops on the shopping list collapse into one.
+
 ## 2026.9.11
 
 Bumps the bundled Social Home server from `2026.9.10` to
