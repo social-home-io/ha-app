@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.9.15.1
+
+Bumps the bundled Social Home server from `2026.9.15` to
+[`2026.9.15.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.15.1);
+HA integration stays at `2026.9.11`. Households behind a relay
+connect over WebRTC again.
+
 ## 2026.9.15
 
 Bumps the bundled Social Home server from `2026.9.11` to
