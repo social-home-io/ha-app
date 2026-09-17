@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.9.17
+
+Bumps the bundled Social Home server from `2026.9.15.1` to
+[`2026.9.17`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.17);
+HA integration stays at `2026.9.11`. Spaces discovered on a global
+server can now be joined and read, and only a space's owner can
+delist or unsubscribe from it.
+
 ## 2026.9.15.1
 
 Bumps the bundled Social Home server from `2026.9.15` to
