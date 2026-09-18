@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.9.18
+
+Bumps the bundled Social Home server from `2026.9.17` to
+[`2026.9.18`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.18);
+HA integration stays at `2026.9.11`. A restarted household keeps
+its mesh-routed traffic, and connection servers no longer see
+which household posted to a public space.
+
 ## 2026.9.17
 
 Bumps the bundled Social Home server from `2026.9.15.1` to
