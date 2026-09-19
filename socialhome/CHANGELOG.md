@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.9.19.1
+
+Bumps the bundled Social Home server from `2026.9.19` to
+[`2026.9.19.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.19.1);
+HA integration stays at `2026.9.11`. Join requests now show a
+remote applicant's name instead of a raw id, and invite links no
+longer fail on a clustered connection server.
+
 ## 2026.9.19
 
 Bumps the bundled Social Home server from `2026.9.18` to
