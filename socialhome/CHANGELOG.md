@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.9.19
+
+Bumps the bundled Social Home server from `2026.9.18` to
+[`2026.9.19`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.19);
+HA integration stays at `2026.9.11`. Read-only Follower links let
+you share a space with a stranger, and a space is only publicly
+readable once its owner says so.
+
 ## 2026.9.18
 
 Bumps the bundled Social Home server from `2026.9.17` to
