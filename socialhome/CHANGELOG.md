@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.9.29
+
+Bumps the bundled Social Home server from `2026.9.19.1` to
+[`2026.9.29`](https://github.com/social-home-io/socialhome/releases/tag/2026.9.29);
+HA integration stays at `2026.9.11`. Voice and video calls now
+connect reliably, and this release closes numerous federation
+security holes around cross-household data access.
+
 ## 2026.9.19.1
 
 Bumps the bundled Social Home server from `2026.9.19` to
