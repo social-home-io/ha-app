@@ -1,6 +1,6 @@
 ---
 name: new-release
-description: Cut a new CalVer release of the socialhome / socialhome_early add-ons. Branches off `main`, bumps the add-on CalVer and the pinned `SOCIALHOME_VERSION` / `CUSTOM_COMPONENT_VERSION` to whatever is latest upstream, drafts changelog entries on both add-ons (linking the upstream release page when a pin moves), hands off to the user for any extra edits, opens a PR against `main`, runs the `addon-testing` skill end-to-end against the build, then waits for the user to merge the PR and tidies up the local branch. Stops after cleanup — tagging is the maintainer's call.
+description: Cut a new CalVer release of the socialhome / socialhome_early add-ons. Branches off `main`, bumps the add-on CalVer and the pinned `SOCIALHOME_VERSION` / `CUSTOM_COMPONENT_VERSION` to whatever is latest upstream, drafts changelog entries on both add-ons (linking the upstream release page when a pin moves), hands off to the user for any extra edits, opens a PR against `main`, runs the `addon-testing` skill end-to-end against the build, then waits for the user to merge the PR and tidies up the local branch. Merging to `main` is the release — the build/publish workflow fires on that push, no tag needed.
 ---
 
 # new-release
@@ -369,8 +369,10 @@ scratch state that the next release picks up from; don't
 uninstall the addon, don't tear down `supervisor_run`, and don't
 delete the symlinks. The cleanup here is repo-only.
 
-That ends the skill — tagging the release (which is what triggers
-the image-build workflow) stays with the maintainer.
+That ends the skill. Merging the PR into `main` already triggered
+the build/publish workflow for both add-on images (`builder.yml`
+runs on every push to `main`) — no git tag is needed, and none
+should be cut.
 
 ## Notes
 
@@ -382,10 +384,11 @@ the image-build workflow) stays with the maintainer.
   validator runs in parallel with the local build. Failures are
   fixed with follow-up commits on the same branch; the test-plan
   checkboxes only flip to `[x]` once testing is green.
-- The git **tag** that triggers the release-image build is cut
-  separately by the maintainer after this PR merges. This skill
-  stops once step 9's local-branch cleanup is done; tagging is
-  out of scope.
+- **No git tag — merging to `main` is the release.** `builder.yml`
+  builds and publishes both add-on images on every push to `main`,
+  each from its own `config.yaml` CalVer. This skill stops once
+  step 9's local-branch cleanup is done; there is no further
+  tagging step to run.
 - The cleanup in step 9 is **repo state only**. Devcontainer /
   Supervisor scratch state (installed add-on, symlinks, running
   `supervisor_run`) is intentionally preserved so the next

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.1
+
+Bumps the bundled Social Home server from `2026.9.29` to
+[`2026.10.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.1);
+HA integration stays at `2026.9.11`. Adds Timetables — school-style
+weekly class schedules with photos, shareable across spaces and
+shown on today's calendar — plus a Monday/Sunday week-start option
+and language-picker and light-mode button fixes.
+
 ## 2026.9.29
 
 Bumps the bundled Social Home server from `2026.9.19.1` to

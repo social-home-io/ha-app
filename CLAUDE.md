@@ -77,19 +77,22 @@ ha-app/
 
 ## Releases
 
-CalVer git tags drive the stable channel:
+**No git tag is needed to ship a release.** Merging the release PR
+into `main` *is* the release: `.github/workflows/builder.yml`
+builds and publishes both `socialhome` and `socialhome_early`
+images on every push to `main`, each read from its own add-on's
+`config.yaml` CalVer. Don't cut a tag as part of a release — there
+is nothing downstream that needs one.
 
-```sh
-git tag 2026.4.26
-git push origin 2026.4.26
-```
+(The workflow also matches pushes of a bare numeric tag, e.g.
+`2026.4.26`, which builds+publishes `socialhome` alone. That path
+is a leftover manual-rebuild escape hatch for the stable image, not
+part of the normal flow — leave it alone.)
 
-The release workflow rebuilds the image for every supported arch
-and publishes to `ghcr.io/social-home-io/socialhome` with the tag
-as the image tag. The early-access add-on rebuilds whenever its
-CalVer in `config.yaml` is bumped — it does **not** track `main`
-on every push; the channel is for explicit RC cuts that we want
-to soak before promoting to stable.
+The `new-release` skill (`.claude/skills/new-release/`) drives the
+whole flow: branch, version bump, changelog, PR, `addon-testing`,
+then merge-and-cleanup. It stops once the branch is tidied up after
+merge — there's no further "cut the tag" step to run.
 
 ## Testing
 
