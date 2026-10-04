@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.4
+
+Bumps the bundled Social Home server from `2026.10.2` to
+[`2026.10.4`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.4);
+HA integration stays at `2026.9.11`. Space members can now post,
+comment and react through the connection server without the host
+being online, onboarding offers an opt-in GFS connection, and
+invites and space settings are translated.
+
 ## 2026.10.2
 
 Bumps the bundled Social Home server from `2026.10.1` to
