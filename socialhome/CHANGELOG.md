@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.10.7
+
+Bumps the bundled Social Home server from `2026.10.4` to
+[`2026.10.7`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.7);
+HA integration stays at `2026.9.11`. The GFS no longer stores
+household addresses, gallery pictures and backup restores over
+1 MB work again, and pairing failures are announced and focused.
+
 ## 2026.10.4
 
 Bumps the bundled Social Home server from `2026.10.2` to
