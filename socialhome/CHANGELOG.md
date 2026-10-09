@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.10.9
+
+Bumps the bundled Social Home server from `2026.10.8.1` to
+[`2026.10.9`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.9);
+HA integration stays at `2026.9.11`. Every household and space now
+has a shared chat, and space sync only sends what changed and
+carries deletes to households that missed them.
+
 ## 2026.10.8
 
 Bumps the bundled Social Home server from `2026.10.7` to
