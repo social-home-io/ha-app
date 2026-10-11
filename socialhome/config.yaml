@@ -32,6 +32,18 @@ panel_admin: false
 ingress: true
 ingress_stream: true
 
+# The household wall-tablet dashboard listens on its own port (8100 in
+# the container, Social Home >= the release that ships the dashboard).
+# ``null`` = not published by default: a fixed host port would stop the
+# App from starting on a host where 8100 is already taken. The user
+# turns it on under Settings › Apps › Social Home › Network; Social Home
+# reads the mapping from ``/addons/self/info`` and shows the right
+# address + sign-in QR in Admin › Dashboard.
+ports:
+  8100/tcp: null
+ports_description:
+  8100/tcp: Household dashboard (wall tablet, LAN only)
+
 # Supervisor + HA-Core access the bootstrap actually needs:
 #
 # * ``hassio_api`` — ``GET /addons/self/info`` (read our own

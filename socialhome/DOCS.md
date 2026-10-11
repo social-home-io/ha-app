@@ -53,7 +53,15 @@ add-on offline.
 ## Network
 
 Web UI + API are exposed through HA Ingress on port `8099` —
-there is no separate hostname / port to publish.
+there is no separate hostname / port to publish for them.
+
+The optional **household dashboard** (a read-only page for a wall
+tablet) listens on its own port, `8100/tcp`. It is off by default:
+to use it, enter a host port for it under **Network** on this page,
+save, and restart the App. Then switch the dashboard on in Social Home
+under **Admin › Dashboard** — it shows the tablet's address and a
+one-time sign-in QR code. Keep this port on your home network; don't
+forward it to the internet.
 
 ## Logs
 

@@ -24,6 +24,12 @@ panel_admin: false
 ingress: true
 ingress_stream: true
 
+# Household wall-tablet dashboard port — see the stable add-on's config.
+ports:
+  8100/tcp: null
+ports_description:
+  8100/tcp: Household dashboard (wall tablet, LAN only)
+
 # Supervisor + HA-Core access the bootstrap needs — see the
 # stable add-on's config for the rationale.
 hassio_api: true
