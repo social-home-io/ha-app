@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.10.11
+
+Bumps the bundled Social Home server from `2026.10.9` to
+[`2026.10.11`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.11);
+HA integration stays at `2026.9.11`. Space owners now pick which
+GFSs list a space, members reach every one of them, and comments
+that arrive before their post are held instead of lost.
+
 ## 2026.10.9
 
 Bumps the bundled Social Home server from `2026.10.8.1` to
