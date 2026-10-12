@@ -26,7 +26,7 @@ ingress_stream: true
 
 # Household wall-tablet dashboard port — see the stable add-on's config.
 ports:
-  8100/tcp: null
+  8100/tcp: 8100
 ports_description:
   8100/tcp: Household dashboard (wall tablet, LAN only)
 
