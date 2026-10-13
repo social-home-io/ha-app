@@ -1,6 +1,6 @@
 ---
 name: Social Home
-version: "2026.10.11"
+version: "2026.10.13"
 slug: socialhome
 description: Your private, federated household social network.
 url: https://social-home.io
@@ -31,6 +31,19 @@ panel_admin: false
 # ``/federation/inbox/...``).
 ingress: true
 ingress_stream: true
+
+# The household wall-tablet dashboard listens on its own port (8100 in
+# the container, Social Home >= the release that ships the dashboard).
+# Published on host port 8100 by default: nothing listens there until an
+# admin switches the dashboard on in Admin › Dashboard, so the default is
+# safe and saves a setup step. If 8100 is taken on the host, change or
+# clear the host port under Settings › Apps › Social Home › Network.
+# Social Home reads the mapping from ``/addons/self/info`` and shows the
+# right address + sign-in QR in Admin › Dashboard.
+ports:
+  8100/tcp: 8100
+ports_description:
+  8100/tcp: Household dashboard (wall tablet, LAN only)
 
 # Supervisor + HA-Core access the bootstrap actually needs:
 #

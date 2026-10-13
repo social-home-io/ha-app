@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026.10.13
+
+Bumps the bundled Social Home server from `2026.10.11` to
+[`2026.10.13`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.13);
+HA integration stays at `2026.9.11`. Adds the household wall-tablet
+dashboard: the add-on now declares port `8100/tcp` (published on host
+port 8100 by default; nothing listens until an admin turns the
+dashboard on under Admin › Dashboard), and the server picks up the
+mapped host port automatically. Upstream also brings households their
+own zones synced with Home Assistant, a redesigned Connections page and
+map, and stops writing tokens to the access log.
+
 ## 2026.10.11
 
 Bumps the bundled Social Home server from `2026.10.9` to
