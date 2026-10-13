@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.13
+
+Mirrors stable `socialhome` 2026.10.13 — see its changelog for the
+feature summary. Bumps the bundled Social Home server from
+`2026.10.11` to
+[`2026.10.13`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.13);
+HA integration stays at `2026.9.11`. Declares the household dashboard
+port `8100/tcp` (host port 8100 by default).
+
 ## 2026.10.11
 
 Mirrors stable `socialhome` 2026.10.11 — see its changelog for the
