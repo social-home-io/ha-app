@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.15
+
+Bumps the bundled Social Home server from `2026.10.13` to
+[`2026.10.14`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.14);
+HA integration stays at `2026.9.11`. Wall panels can now pair with
+the household dashboard by short code, are discovered through Home
+Assistant and connected with one tap, lock with the household PIN,
+and can be locked from HA automations.
+
 ## 2026.10.13
 
 Bumps the bundled Social Home server from `2026.10.11` to
