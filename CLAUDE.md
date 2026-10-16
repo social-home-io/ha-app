@@ -55,6 +55,17 @@ the HA Supervisor's *Add-on store → Repositories*. Spec: §8 of
   version means bumping `CUSTOM_COMPONENT_VERSION` in both
   `build.yaml`s; the stable / early CalVer in `config.yaml` is
   independent.
+- **Python dependencies come from Social Home's lock.** The builder
+  stage fetches `requirements/constraints.txt` from the socialhome git
+  tag matching `SOCIALHOME_VERSION` (every runtime package, transitive
+  ones included, pinned with sha256 hashes) and builds the wheelhouse
+  from exactly that set with `pip3 wheel --require-hashes -r`; socialhome
+  itself joins with `--no-deps`. Never add a bare `pip3 install <pkg>`
+  or drop the hash check — a dependency change belongs in socialhome's
+  `uv.lock`. Releases up to `2026.10.14` predate the lock and fall back
+  to an unlocked build (with a warning); any newer version without the
+  file fails the build. Remove that fallback once both `build.yaml`
+  pins are past `2026.10.14`.
 
 ## Layout
 
