@@ -36,7 +36,7 @@ RUN set -eu; \
         pip3 wheel --no-cache-dir --pre --no-deps --wheel-dir=/wheels \
             "socialhome==${SOCIALHOME_VERSION}"; \
     elif [ "${status}" = 404 ] && python3 -c 'import re, sys; v = lambda s: [int(n) for n in re.findall(r"[0-9]+", s)]; sys.exit(v(sys.argv[1]) > v(sys.argv[2]))' \
-            "${SOCIALHOME_VERSION}" 2026.10.14; then \
+            "${SOCIALHOME_VERSION}" 2026.10.16; then \
         echo "WARNING: socialhome ${SOCIALHOME_VERSION} predates the dependency lock; building UNLOCKED" >&2; \
         pip3 wheel --no-cache-dir --pre --wheel-dir=/wheels \
             "socialhome==${SOCIALHOME_VERSION}"; \

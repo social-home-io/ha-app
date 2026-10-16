@@ -45,12 +45,12 @@ ARG SOCIALHOME_VERSION
 # The final stage installs ``--no-index`` from this wheelhouse, so a lock
 # that disagreed with socialhome's own requirements fails the build.
 #
-# Transition: releases up to 2026.10.14 predate the lock. For those
+# Transition: releases up to 2026.10.16 predate the lock. For those
 # (and only those) an HTTP 404 falls back to the old unlocked build with
 # a warning. Any other outcome fails the build: a 404 for a newer
 # version (a moved or deleted file never silently unlocks a release),
 # any other HTTP status, or a network error. Drop the fallback once
-# both build.yaml pins are past 2026.10.14.
+# both build.yaml pins are past 2026.10.16.
 RUN set -eu; \
     url="https://raw.githubusercontent.com/social-home-io/socialhome/${SOCIALHOME_VERSION}/requirements/constraints.txt"; \
     status="$(curl -sSL -o /tmp/constraints.txt -w '%{http_code}' "${url}")"; \
@@ -60,7 +60,7 @@ RUN set -eu; \
         pip3 wheel --no-cache-dir --no-deps --wheel-dir=/wheels \
             "socialhome==${SOCIALHOME_VERSION}"; \
     elif [ "${status}" = 404 ] && python3 -c 'import re, sys; v = lambda s: [int(n) for n in re.findall(r"[0-9]+", s)]; sys.exit(v(sys.argv[1]) > v(sys.argv[2]))' \
-            "${SOCIALHOME_VERSION}" 2026.10.14; then \
+            "${SOCIALHOME_VERSION}" 2026.10.16; then \
         echo "WARNING: socialhome ${SOCIALHOME_VERSION} predates the dependency lock; building UNLOCKED" >&2; \
         pip3 wheel --no-cache-dir --wheel-dir=/wheels \
             "socialhome==${SOCIALHOME_VERSION}"; \

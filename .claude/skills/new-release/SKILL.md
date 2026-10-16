@@ -101,7 +101,7 @@ sed -i "s/^  SOCIALHOME_VERSION: \".*\"/  SOCIALHOME_VERSION: \"${LATEST_SH}\"/"
 
 The Dockerfiles build from socialhome's dependency lock for that tag
 (see `CLAUDE.md`). Confirm the new pin ships it — a version past
-`2026.10.14` without it fails the image build:
+`2026.10.16` without it fails the image build:
 
 ```sh
 curl -fsI "https://raw.githubusercontent.com/social-home-io/socialhome/${LATEST_SH}/requirements/constraints.txt" \
