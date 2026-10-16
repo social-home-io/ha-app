@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.10.16
+
+Bumps the bundled Social Home server from `2026.10.14` to
+[`2026.10.16`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.16);
+HA integration stays at `2026.9.11`. Friends now shows what everyone
+is up to, tapping anyone opens their profile, and blocks reliably
+hide a child's status, picture and messages from the blocked person.
+
 ## 2026.10.15
 
 Bumps the bundled Social Home server from `2026.10.13` to
