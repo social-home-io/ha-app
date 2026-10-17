@@ -100,13 +100,25 @@ sed -i "s/^  SOCIALHOME_VERSION: \".*\"/  SOCIALHOME_VERSION: \"${LATEST_SH}\"/"
 ```
 
 The Dockerfiles build from socialhome's dependency lock for that tag
-(see `CLAUDE.md`). Confirm the new pin ships it — a version past
-`2026.10.16` without it fails the image build:
+(see `CLAUDE.md`): they fetch `uv.lock` + `pyproject.toml` at the tag
+and run `uv export --frozen` in the builder stage. Confirm the new pin
+ships the lock — a version past `2026.10.16` without it fails the image
+build — and that the App's pinned uv is not older than the one
+socialhome locked with (an older uv may not read a newer lock format):
 
 ```sh
-curl -fsI "https://raw.githubusercontent.com/social-home-io/socialhome/${LATEST_SH}/requirements/constraints.txt" \
-  >/dev/null && echo "locked deps: ok" || echo "locked deps: MISSING for ${LATEST_SH}"
+base="https://raw.githubusercontent.com/social-home-io/socialhome/${LATEST_SH}"
+curl -fsI "${base}/uv.lock" >/dev/null \
+  && echo "locked deps: ok" || echo "locked deps: MISSING for ${LATEST_SH}"
+SH_UV=$(curl -fsSL "${base}/Dockerfile.sh" | sed -n 's#.*ghcr.io/astral-sh/uv:\([0-9.]*\).*#\1#p')
+APP_UV=$(sed -n 's#.*ghcr.io/astral-sh/uv:\([0-9.]*\)@.*#\1#p' socialhome/Dockerfile)
+echo "uv: socialhome ${SH_UV}  app ${APP_UV}"
 ```
+
+If socialhome's uv is newer, bump the `COPY --from=ghcr.io/astral-sh/uv:…@sha256:…`
+line in **both** Dockerfiles in this release PR — new tag *and* the
+multi-arch index digest (`docker buildx imagetools inspect
+ghcr.io/astral-sh/uv:<version>` prints it as `Digest:`).
 
 If `${LATEST_INT} != ${CUR_INT}`:
 

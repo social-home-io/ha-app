@@ -22,29 +22,56 @@ RUN apk add --no-cache \
         openssl-dev \
         pkgconf
 
+# uv turns Social Home's ``uv.lock`` into the hashed requirements file
+# below. Static musl binaries for amd64 + aarch64 from Astral's official
+# image, pinned by tag AND by the multi-arch index digest, so a re-pushed
+# tag can't swap the binary. Keep the version at (or above) the uv that
+# Social Home pins (``Dockerfile.sh`` / CI ``setup-uv``): an older uv may
+# not read a newer lock format.
+COPY --from=ghcr.io/astral-sh/uv:0.12.10@sha256:2bb3ebca0a796a155094a27773d290c4b074572e6107f171d88d086682fd2500 \
+    /uv /usr/local/bin/uv
+
 ARG SOCIALHOME_VERSION
 # Locked dependency set — see the stable Dockerfile for the rationale
-# and the transition rule. ``--pre`` lets the early channel pin a
-# CalVer pre-release of socialhome itself; the locked deps are exact
+# and the fallbacks for older tags. ``--pre`` lets the early channel pin
+# a CalVer pre-release of socialhome itself; the locked deps are exact
 # pins, so they need no ``--pre``.
 RUN set -eu; \
-    url="https://raw.githubusercontent.com/social-home-io/socialhome/${SOCIALHOME_VERSION}/requirements/constraints.txt"; \
-    status="$(curl -sSL -o /tmp/constraints.txt -w '%{http_code}' "${url}")"; \
+    base="https://raw.githubusercontent.com/social-home-io/socialhome/${SOCIALHOME_VERSION}"; \
+    mkdir -p /tmp/lock; \
+    fetch() { curl -sSL -o "/tmp/lock/$(basename "$1")" -w '%{http_code}' "${base}/$1"; }; \
+    fail() { echo "ERROR: HTTP $1 for $2 of socialhome ${SOCIALHOME_VERSION} (${base}/$2)" >&2; exit 1; }; \
+    locked=1; \
+    status="$(fetch uv.lock)"; \
     if [ "${status}" = 200 ]; then \
+        status="$(fetch pyproject.toml)"; \
+        [ "${status}" = 200 ] || fail "${status}" pyproject.toml; \
+        uv export --no-cache --frozen --no-dev --no-emit-project --no-header \
+            --format requirements-txt --project /tmp/lock > /tmp/lock/requirements.txt; \
+    elif [ "${status}" = 404 ]; then \
+        status="$(fetch requirements/constraints.txt)"; \
+        if [ "${status}" = 200 ]; then \
+            mv /tmp/lock/constraints.txt /tmp/lock/requirements.txt; \
+        elif [ "${status}" = 404 ] && python3 -c 'import re, sys; v = lambda s: [int(n) for n in re.findall(r"[0-9]+", s)]; sys.exit(v(sys.argv[1]) > v(sys.argv[2]))' \
+                "${SOCIALHOME_VERSION}" 2026.10.16; then \
+            echo "WARNING: socialhome ${SOCIALHOME_VERSION} predates the dependency lock; building UNLOCKED" >&2; \
+            locked=0; \
+        else \
+            fail "${status}" requirements/constraints.txt; \
+        fi; \
+    else \
+        fail "${status}" uv.lock; \
+    fi; \
+    if [ "${locked}" = 1 ]; then \
         pip3 wheel --no-cache-dir --require-hashes --wheel-dir=/wheels \
-            -r /tmp/constraints.txt; \
+            -r /tmp/lock/requirements.txt; \
         pip3 wheel --no-cache-dir --pre --no-deps --wheel-dir=/wheels \
             "socialhome==${SOCIALHOME_VERSION}"; \
-    elif [ "${status}" = 404 ] && python3 -c 'import re, sys; v = lambda s: [int(n) for n in re.findall(r"[0-9]+", s)]; sys.exit(v(sys.argv[1]) > v(sys.argv[2]))' \
-            "${SOCIALHOME_VERSION}" 2026.10.16; then \
-        echo "WARNING: socialhome ${SOCIALHOME_VERSION} predates the dependency lock; building UNLOCKED" >&2; \
+    else \
         pip3 wheel --no-cache-dir --pre --wheel-dir=/wheels \
             "socialhome==${SOCIALHOME_VERSION}"; \
-    else \
-        echo "ERROR: HTTP ${status} for requirements/constraints.txt of socialhome ${SOCIALHOME_VERSION} (${url})" >&2; \
-        exit 1; \
     fi; \
-    rm -f /tmp/constraints.txt
+    rm -rf /tmp/lock
 
 # ---------- final stage ------------------------------------------
 FROM ${BUILD_FROM}
