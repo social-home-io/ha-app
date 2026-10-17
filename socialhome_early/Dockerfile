@@ -23,8 +23,28 @@ RUN apk add --no-cache \
         pkgconf
 
 ARG SOCIALHOME_VERSION
-RUN pip3 wheel --no-cache-dir --pre --wheel-dir=/wheels \
-        "socialhome==${SOCIALHOME_VERSION}"
+# Locked dependency set — see the stable Dockerfile for the rationale
+# and the transition rule. ``--pre`` lets the early channel pin a
+# CalVer pre-release of socialhome itself; the locked deps are exact
+# pins, so they need no ``--pre``.
+RUN set -eu; \
+    url="https://raw.githubusercontent.com/social-home-io/socialhome/${SOCIALHOME_VERSION}/requirements/constraints.txt"; \
+    status="$(curl -sSL -o /tmp/constraints.txt -w '%{http_code}' "${url}")"; \
+    if [ "${status}" = 200 ]; then \
+        pip3 wheel --no-cache-dir --require-hashes --wheel-dir=/wheels \
+            -r /tmp/constraints.txt; \
+        pip3 wheel --no-cache-dir --pre --no-deps --wheel-dir=/wheels \
+            "socialhome==${SOCIALHOME_VERSION}"; \
+    elif [ "${status}" = 404 ] && python3 -c 'import re, sys; v = lambda s: [int(n) for n in re.findall(r"[0-9]+", s)]; sys.exit(v(sys.argv[1]) > v(sys.argv[2]))' \
+            "${SOCIALHOME_VERSION}" 2026.10.16; then \
+        echo "WARNING: socialhome ${SOCIALHOME_VERSION} predates the dependency lock; building UNLOCKED" >&2; \
+        pip3 wheel --no-cache-dir --pre --wheel-dir=/wheels \
+            "socialhome==${SOCIALHOME_VERSION}"; \
+    else \
+        echo "ERROR: HTTP ${status} for requirements/constraints.txt of socialhome ${SOCIALHOME_VERSION} (${url})" >&2; \
+        exit 1; \
+    fi; \
+    rm -f /tmp/constraints.txt
 
 # ---------- final stage ------------------------------------------
 FROM ${BUILD_FROM}

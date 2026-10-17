@@ -29,8 +29,46 @@ RUN apk add --no-cache \
         pkgconf
 
 ARG SOCIALHOME_VERSION
-RUN pip3 wheel --no-cache-dir --wheel-dir=/wheels \
-        "socialhome==${SOCIALHOME_VERSION}"
+# Locked dependency set. Every Social Home release commits
+# ``requirements/constraints.txt`` (exported from its ``uv.lock``): every
+# runtime package, transitive ones included, at an exact version with
+# the sha256 of each published file. It is fetched for exactly
+# ``SOCIALHOME_VERSION`` (by git tag, online build like the integration
+# zip below), then:
+#   1. ``pip3 wheel --require-hashes -r`` builds the wheelhouse from
+#      exactly that set — any file whose hash isn't listed is refused.
+#      ``aiolibdatachannel`` has no musllinux wheel, so it compiles here
+#      from its locked, hashed sdist.
+#   2. socialhome itself joins with ``--no-deps``. (It can't go through
+#      the hashed file: pip turns on hash-checking for every requirement
+#      once any has a hash, and socialhome's own hash isn't in the file.)
+# The final stage installs ``--no-index`` from this wheelhouse, so a lock
+# that disagreed with socialhome's own requirements fails the build.
+#
+# Transition: releases up to 2026.10.16 predate the lock. For those
+# (and only those) an HTTP 404 falls back to the old unlocked build with
+# a warning. Any other outcome fails the build: a 404 for a newer
+# version (a moved or deleted file never silently unlocks a release),
+# any other HTTP status, or a network error. Drop the fallback once
+# both build.yaml pins are past 2026.10.16.
+RUN set -eu; \
+    url="https://raw.githubusercontent.com/social-home-io/socialhome/${SOCIALHOME_VERSION}/requirements/constraints.txt"; \
+    status="$(curl -sSL -o /tmp/constraints.txt -w '%{http_code}' "${url}")"; \
+    if [ "${status}" = 200 ]; then \
+        pip3 wheel --no-cache-dir --require-hashes --wheel-dir=/wheels \
+            -r /tmp/constraints.txt; \
+        pip3 wheel --no-cache-dir --no-deps --wheel-dir=/wheels \
+            "socialhome==${SOCIALHOME_VERSION}"; \
+    elif [ "${status}" = 404 ] && python3 -c 'import re, sys; v = lambda s: [int(n) for n in re.findall(r"[0-9]+", s)]; sys.exit(v(sys.argv[1]) > v(sys.argv[2]))' \
+            "${SOCIALHOME_VERSION}" 2026.10.16; then \
+        echo "WARNING: socialhome ${SOCIALHOME_VERSION} predates the dependency lock; building UNLOCKED" >&2; \
+        pip3 wheel --no-cache-dir --wheel-dir=/wheels \
+            "socialhome==${SOCIALHOME_VERSION}"; \
+    else \
+        echo "ERROR: HTTP ${status} for requirements/constraints.txt of socialhome ${SOCIALHOME_VERSION} (${url})" >&2; \
+        exit 1; \
+    fi; \
+    rm -f /tmp/constraints.txt
 
 # ---------- final stage ------------------------------------------
 FROM ${BUILD_FROM}
