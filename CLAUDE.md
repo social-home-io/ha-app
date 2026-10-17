@@ -56,16 +56,25 @@ the HA Supervisor's *Add-on store → Repositories*. Spec: §8 of
   `build.yaml`s; the stable / early CalVer in `config.yaml` is
   independent.
 - **Python dependencies come from Social Home's lock.** The builder
-  stage fetches `requirements/constraints.txt` from the socialhome git
-  tag matching `SOCIALHOME_VERSION` (every runtime package, transitive
-  ones included, pinned with sha256 hashes) and builds the wheelhouse
-  from exactly that set with `pip3 wheel --require-hashes -r`; socialhome
+  stage fetches `uv.lock` + `pyproject.toml` from the socialhome git
+  tag matching `SOCIALHOME_VERSION` and runs `uv export --frozen
+  --no-dev --no-emit-project --no-header --format requirements-txt`
+  (the same flags as socialhome's own `scripts/lock.sh` and
+  `Dockerfile.sh`) to get every runtime package, transitive ones
+  included, pinned with sha256 hashes. It builds the wheelhouse from
+  exactly that set with `pip3 wheel --require-hashes -r`; socialhome
   itself joins with `--no-deps`. Never add a bare `pip3 install <pkg>`
   or drop the hash check — a dependency change belongs in socialhome's
-  `uv.lock`. Releases up to `2026.10.16` predate the lock and fall back
-  to an unlocked build (with a warning); any newer version without the
-  file fails the build. Remove that fallback once both `build.yaml`
-  pins are past `2026.10.16`.
+  `uv.lock`. uv comes from `ghcr.io/astral-sh/uv:<version>@sha256:<index
+  digest>` (static musl binaries for amd64 + aarch64); keep it at or
+  above the uv socialhome pins, bumping tag and digest together.
+  Fallbacks for older tags: no `uv.lock` → the committed
+  `requirements/constraints.txt` (socialhome committed it only around
+  `2026.10.17`); releases up to `2026.10.16` predate the lock and fall
+  back to an unlocked build (with a warning). Any other outcome — a
+  newer version with neither file, another HTTP status, a network
+  error, a failed export — fails the build. Remove the fallbacks once
+  both `build.yaml` pins are past the versions they cover.
 
 ## Layout
 
