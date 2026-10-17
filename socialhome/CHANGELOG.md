@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.17
+
+Bumps the bundled Social Home server from `2026.10.16` to
+[`2026.10.17`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.17);
+HA integration stays at `2026.9.11`. A second incoming call can be
+answered after declining the first, live updates work in Firefox when
+a page is opened directly, and keyboard and screen-reader navigation
+is cleaner across the calendar, menus and comment sheet.
+
 ## 2026.10.16
 
 Bumps the bundled Social Home server from `2026.10.14` to
