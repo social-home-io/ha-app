@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.10.20
+
+Bumps the bundled Social Home server from `2026.10.17` to
+[`2026.10.20`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.20);
+HA integration stays at `2026.9.11`. Spaces are reworked: one Spaces
+page with Discover, a hero landing per space with Month and Week
+calendar views, local communities only nearby households can join,
+and private spaces no longer leak posts, members or their existence
+to outsiders.
+
 ## 2026.10.17
 
 Bumps the bundled Social Home server from `2026.10.16` to
