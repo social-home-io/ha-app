@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.24
+
+Bumps the bundled Social Home server from `2026.10.20` to
+[`2026.10.24`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.24);
+HA integration stays at `2026.9.11`. Public posts reach followers
+compressed and far smaller, space sync stops resending unchanged
+rosters, pictures and history, and shared locations update and
+disappear promptly on every map.
+
 ## 2026.10.20
 
 Bumps the bundled Social Home server from `2026.10.17` to
