@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.10.27
+
+Bumps the bundled Social Home server from `2026.10.24` to
+[`2026.10.27`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.27);
+HA integration stays at `2026.9.11`. Moments gain a per-follower
+retention choice, saved moments, archive, and deletes that reach every
+copy; Highlights get a single composer, a day-by-day archive, and
+pause / react / reply while watching, with several audience leaks
+closed.
+
 ## 2026.10.24
 
 Bumps the bundled Social Home server from `2026.10.20` to
