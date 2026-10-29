@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.29
+
+Bumps the bundled Social Home server from `2026.10.27` to
+[`2026.10.29`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.29);
+HA integration stays at `2026.9.11`. Notifications are reworked: a
+single settings page, replies instead of every comment, grouped space
+posts, and Home Assistant automations only see your notifications and
+presence once you opt in.
+
 ## 2026.10.27
 
 Bumps the bundled Social Home server from `2026.10.24` to
