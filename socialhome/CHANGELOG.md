@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.10.31
+
+Bumps the bundled Social Home server from `2026.10.30` to
+[`2026.10.31`](https://github.com/social-home-io/socialhome/releases/tag/2026.10.31);
+HA integration stays at `2026.9.11`. Games now tell you when it's your
+turn, game notifications use the app's name in your language, and a
+declined game invite no longer comes back when its app is turned on.
+
 ## 2026.10.30
 
 Bumps the bundled Social Home server from `2026.10.29` to
