@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.11.1
+
+Bumps the bundled Social Home server from `2026.10.31` to
+[`2026.11.1`](https://github.com/social-home-io/socialhome/releases/tag/2026.11.1);
+HA integration stays at `2026.9.11`. Groups and spaces can now share one
+game with a joint lobby and chat, the Apps page gains a Store, and a new
+gift-draw app keeps every match secret from everyone, organiser included.
+
 ## 2026.10.31
 
 Bumps the bundled Social Home server from `2026.10.30` to
