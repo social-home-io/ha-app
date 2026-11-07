@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.11.7
+
+Bumps the bundled Social Home server from `2026.11.2` to
+[`2026.11.7`](https://github.com/social-home-io/socialhome/releases/tag/2026.11.7);
+HA integration stays at `2026.9.11`. Spaces get an encrypted, short-lived
+media cache so pictures reach every member — link-joined, follower, or
+reached only through another household — with inbound files size-capped
+and each household limited to delivering its own posts' pictures.
+
 ## 2026.11.2
 
 Bumps the bundled Social Home server from `2026.11.1` to
