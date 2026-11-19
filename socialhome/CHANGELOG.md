@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.11.19
+
+Bumps the bundled Social Home server from `2026.11.7` to
+[`2026.11.19`](https://github.com/social-home-io/socialhome/releases/tag/2026.11.19);
+HA integration stays at `2026.9.11`. Households reached through a group
+federation server now take part in spaces in full — anonymous per-space
+mailboxes, full-size pictures and large pages — and members always post
+through a GFS anonymously, replacing the trusted / strict publish modes.
+
 ## 2026.11.7
 
 Bumps the bundled Social Home server from `2026.11.2` to
