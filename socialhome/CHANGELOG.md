@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.11.21
+
+Bumps the bundled Social Home server from `2026.11.19` to
+[`2026.11.21`](https://github.com/social-home-io/socialhome/releases/tag/2026.11.21);
+HA integration stays at `2026.9.11`. Spaces now spread posts across
+every group federation server a household is connected to and fail over
+when one is down, and busy communities no longer hit rate limits while
+loading or federating.
+
 ## 2026.11.19
 
 Bumps the bundled Social Home server from `2026.11.7` to
