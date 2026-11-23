@@ -4,6 +4,7 @@
   "overrideCommand": false,
   "remoteUser": "vscode",
   "appPort": ["7123:8123", "7357:4357"],
+  "postCreateCommand": ".devcontainer/post-create.sh",
   "postStartCommand": "bash devcontainer_bootstrap",
   "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
   "workspaceFolder": "/mnt/supervisor/addons/local/${localWorkspaceFolderBasename}",
@@ -12,10 +13,12 @@
     "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}",
     "SUPERVISOR_CHANNEL": "beta"
   },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
+  },
   "features": {
     "ghcr.io/devcontainers/features/node:2": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "customizations": {
     "vscode": {
