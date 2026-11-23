@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.11.23
+
+Bumps the bundled Social Home server from `2026.11.21` to
+[`2026.11.23`](https://github.com/social-home-io/socialhome/releases/tag/2026.11.23);
+HA integration stays at `2026.9.11`. Spaces now show whether your
+household has everything from them and let you catch up while the host
+is offline, and invite QR codes scan again.
+
 ## 2026.11.21
 
 Bumps the bundled Social Home server from `2026.11.19` to
